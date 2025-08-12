@@ -1,0 +1,48 @@
+import { type EditAutocomplete } from '../lib/types/editAutocomplete';
+import EditRef from '../lib/components/EditRef.vue';
+import {
+	FilterOperatorParam,
+	type CollectionParams,
+} from '../lib/types/collection';
+
+import { departmentList } from '../services/departmentService';
+import { BtnSelectType } from '../lib/types/btnSelect';
+import { BtnAddType } from '../lib/types/btnAdd';
+import { SELECT_WIN_PROPS } from '@/config/constants';
+
+export const departmentEditControls = {
+	departments_ref: {
+		comp: EditRef,
+		compProps: {
+			keys: ['id'],
+			actAdd: {
+				addType: BtnAddType.inline,
+			},
+			actSelect: {
+				selectType: BtnSelectType.view,
+				selectProps: {
+					winProps: SELECT_WIN_PROPS,
+					routeName: 'departmentList',
+				},
+			},
+			autocomplete: <EditAutocomplete>{
+				descrFields: ['name'],
+				apiCall: departmentList,
+				apiCallParams: function (search: string): CollectionParams {
+					return {
+						filter: [
+							{
+								f: {
+									name: {
+										o: FilterOperatorParam.ILK,
+										v: encodeURIComponent(`%${search}%`),
+									},
+								},
+							},
+						],
+					};
+				},
+			},
+		},
+	},
+};

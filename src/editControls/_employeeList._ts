@@ -1,0 +1,276 @@
+import { useI18n } from 'vue-i18n';
+
+import { type GridCol } from '../lib/types/grid';
+import { employeeFields } from '../dataFields/employee';
+import { postFields } from '../dataFields/post';
+import { type FormEdit, type FormData } from '../lib/types/form';
+import {
+	type EmployeeChild,
+	type EmployeeExperience,
+} from '../models/employee';
+import { cardBankFields } from '../dataFields/cardBank';
+
+import PostEdit from '@/components/PostEdit.vue';
+import DepartmentEdit from '@/components/DepartmentEdit.vue';
+import CardBankEdit from '@/components/CardBankEdit.vue';
+import { isArray } from 'util';
+import { ControlType } from '@/lib/types/controlTypes';
+
+export const employeeListColumns = function (): GridCol[][] {
+	const { t } = useI18n();
+	return <GridCol[][]>[
+		[
+			{
+				id: 'num',
+				header: '№',
+				formatFunction: function (
+					row: FormData,
+					id: string,
+					rowIndex: number,
+				): string {
+					return (rowIndex + 1).toString();
+				},
+				rowspan: 2,
+				sort: false,
+			},
+			{
+				id: 'name',
+				header: t('EmployeeList.columns.name'),
+				rowspan: 2,
+				field: employeeFields.name,
+			},
+			{
+				id: 'postSpan',
+				header: t('EmployeeList.columns.postSpan'),
+				sort: false,
+				colspan: 7,
+			},
+			{
+				id: 'persDataSpan',
+				header: t('EmployeeList.columns.persDataSpan'),
+				sort: false,
+				colspan: 4,
+			},
+			{
+				id: 'contactSpan',
+				header: t('EmployeeList.columns.contactSpan'),
+				sort: false,
+				colspan: 2,
+			},
+			{
+				id: 'sizeSpan',
+				header: t('EmployeeList.columns.sizeSpan'),
+				colspan: 3,
+				sort: false,
+			},
+			{
+				id: 'personal_documents',
+				header: t('EmployeeList.columns.documents'),
+				field: employeeFields.personal_documents,
+				rowspan: 2,
+				sort: false,
+				formatFunction: function (
+					row: FormData,
+					id: string,
+					rowIndex: number,
+				): string {
+					if (
+						row['personal_documents'] &&
+						Array.isArray(row['personal_documents']) &&
+						row['personal_documents'].length
+					) {
+						return row['personal_documents'].length.toString();
+					}
+					return '';
+				},
+			},
+			{
+				id: 'comment_text',
+				header: t('EmployeeList.columns.comment_text'),
+				field: employeeFields.comment_text,
+				rowspan: 2,
+				sort: false,
+			},
+		],
+		[
+			{
+				id: 'posts_ref',
+				header: t('EmployeeList.columns.posts_ref'),
+				field: postFields.posts_ref,
+				// controlType: ControlType.ref,
+				editControl: {
+					comp: PostEdit,
+				}, //postEditControls.posts_ref,
+				// formatControl: <FormEdit>{
+				// 	comp: RefRouter,
+				// 	compProps: {
+				// 		routeName: 'postDetail',
+				// 	},
+				// },
+			},
+			{
+				id: 'departments_ref',
+				header: t('EmployeeList.columns.departments_ref'),
+				field: postFields.departments_ref,
+				// controlType: ControlType.ref,
+				editControl: {
+					comp: DepartmentEdit,
+				},
+				//departmentEditControls.departments_ref,
+			},
+			{
+				id: 'experience',
+				header: t('EmployeeList.columns.experience'),
+				field: employeeFields.experience,
+				sort: false,
+				formatFunction: function (
+					row: FormData,
+					id: string,
+					rowIndex: number,
+				): string {
+					let res = '';
+					if (row.experience) {
+						const expFrom = (row.experience as EmployeeExperience)
+							.date;
+						const expYears = (row.experience as EmployeeExperience)
+							.years;
+						if (expFrom) {
+							res = (
+								Math.abs(
+									new Date().getFullYear() -
+										expFrom.getFullYear(),
+								) + (isNaN(expYears) ? 0 : expYears)
+							).toString();
+						}
+					}
+					return res;
+				},
+			},
+			{
+				id: 'qualification',
+				header: t('EmployeeList.columns.qualification'),
+				field: employeeFields.qualification,
+			},
+			{
+				id: 'driving_lic_cat',
+				header: t('EmployeeList.columns.driving_lic_cat'),
+				field: employeeFields.driving_lic_cat,
+				sort: false,
+				formatFunction: function (
+					row: FormData,
+					id: string,
+					rowIndex: number,
+				): string {
+					let res = '';
+					if (row.driving_lic_cat) {
+						res = (row.driving_lic_cat as string[])
+							.sort()
+							.join(',');
+					}
+					return res;
+				},
+			},
+			{
+				id: 'staff',
+				header: t('EmployeeList.columns.staff'),
+				field: employeeFields.staff,
+				formatOpts: { trueValue: '+', falseValue: '-' },
+			},
+			{
+				id: 'card_banks_ref',
+				header: t('EmployeeList.columns.card_banks_ref'),
+				field: cardBankFields.card_banks_ref,
+				// controlType: ControlType.ref,
+				editControl: {
+					comp: CardBankEdit,
+				},
+				//cardBankEditControls.card_banks_ref,
+			},
+			{
+				id: 'birth_date',
+				header: t('EmployeeList.columns.birth_date'),
+				field: employeeFields.birth_date,
+				formatOpts: {},
+			},
+			{
+				id: 'age',
+				header: t('EmployeeList.columns.age'),
+				sort: false,
+				formatFunction: function (
+					row: FormData,
+					id: string,
+					rowIndex: number,
+				): string {
+					let res = '';
+					if (row.birth_date) {
+						res = Math.abs(
+							new Date().getFullYear() -
+								(row.birth_date as Date).getFullYear(),
+						).toString();
+					}
+					return res;
+				},
+			},
+			{
+				id: 'children',
+				header: t('EmployeeList.columns.children'),
+				sort: false,
+				formatFunction: function (
+					row: FormData,
+					id: string,
+					rowIndex: number,
+				): string {
+					let res = '';
+					if (row.children) {
+						const children = row.children as EmployeeChild[];
+
+						const cnt = children.length;
+						const difChildren = new Set(
+							children.map((item) => item.sex),
+						);
+						const difChDescr = Array.from(difChildren)
+							.map((ch) => (ch === 'male' ? 'м' : 'д'))
+							.join('/');
+						res = `${cnt} (${difChDescr})`;
+					}
+					return res;
+				},
+			},
+			{
+				id: 'alimony',
+				header: t('EmployeeList.columns.alimony'),
+				field: employeeFields.alimony,
+				formatOpts: { showFalse: false, trueValue: '+' },
+			},
+			{
+				id: 'tel',
+				header: t('EmployeeList.columns.tel'),
+				field: employeeFields.tel,
+				controlType: ControlType.tel,
+			},
+			{
+				id: 'email',
+				header: t('EmployeeList.columns.email'),
+				field: employeeFields.email,
+			},
+			{
+				id: 'cloth.height',
+				header: t('EmployeeList.columns.height'),
+				sort: false,
+				field: employeeFields.cloth_height,
+			},
+			{
+				id: 'cloth.cloth',
+				header: t('EmployeeList.columns.cloth'),
+				sort: false,
+				field: employeeFields.cloth_cloth,
+			},
+			{
+				id: 'cloth.shoes',
+				header: t('EmployeeList.columns.shoes'),
+				sort: false,
+				field: employeeFields.cloth_shoes,
+			},
+		],
+	];
+};

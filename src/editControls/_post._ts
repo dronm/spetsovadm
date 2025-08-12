@@ -1,0 +1,62 @@
+import { type EditAutocomplete } from '../lib/types/editAutocomplete';
+import EditRef from '../lib/components/EditRef.vue';
+// import { type EditRefProps } from "../lib/components/EditRef.vue"
+import {
+	FilterOperatorParam,
+	type CollectionParams,
+} from '../lib/types/collection';
+
+import { postList } from '../services/postService';
+import { BtnSelectType } from '../lib/types/btnSelect';
+import { BtnOpenType } from '../lib/types/btnOpen';
+import { BtnAddType } from '../lib/types/btnAdd';
+
+export const postEditControls = {
+	posts_ref: {
+		comp: EditRef,
+		compProps: {
+			keys: ['id'],
+			actAdd: {
+				addType: BtnAddType.view,
+				addProps: {
+					winProps: { width: 300, height: 200 },
+					routeName: 'postDetail',
+				},
+			},
+			actOpen: {
+				openType: BtnOpenType.view,
+				openProps: {
+					winProps: { width: 300, height: 200 },
+					routeName: 'postDetail',
+				},
+			},
+			actSelect: {
+				selectType: BtnSelectType.view,
+				selectProps: {
+					winProps: { width: 500, height: 400 },
+					routeName: 'postList',
+				},
+			},
+			autocomplete: <EditAutocomplete>{
+				descrFields: ['name'],
+				apiCall: postList,
+				apiCallParams: function (search: string): CollectionParams {
+					return {
+						filter: [
+							{
+								f: {
+									name: {
+										o: FilterOperatorParam.ILK,
+										v: encodeURIComponent(`%${search}%`),
+									},
+								},
+							},
+						],
+					};
+				},
+			},
+			lable: 'Должность:',
+			title: 'Должность сотрудника',
+		},
+	},
+};

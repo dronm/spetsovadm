@@ -1,0 +1,17 @@
+
+:root {
+  --brand-700: #097350;
+  --brand-950: #053628;
+  --gray-400: #A4A7AE;
+  --gray-50: #FAFAFA;
+  --gray-200: #E9EAEB;
+  --gray-300: #D5D7DA;
+  --gray-500: #717680;
+  --gray-600: #535862;
+  --gray-700: #414651;
+  --gray-950: #0A0D12;
+  --gray-900: #181D27;
+  --base-white: #FFF;
+  --font-inter: 'Inter', sans-serif;
+  --font-russo: 'Russo_One', sans-serif;
+}

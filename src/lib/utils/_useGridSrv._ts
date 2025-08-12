@@ -1,0 +1,11 @@
+import { type GridData, GridColSortOrder } from "../types/grid";
+
+export const useSrvSorting = (data: GridData, field: string, sortOrder: GridColSortOrder) => {
+	console.log("sorting");
+};
+
+// export const useSrvRowForEdit: GridRowForEditProto = (data: GridRow, rowIndex: number) => {
+// 	//fetch detail data from server, return
+// 	const row = data[rowIndex];
+// 	return Object.create(row);
+// };

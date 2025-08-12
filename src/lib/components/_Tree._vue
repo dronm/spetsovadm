@@ -1,0 +1,1037 @@
+<template>
+	<div id="collection" class="p-4">
+		<div v-if="title" class="grid-title">{{ title }}</div>
+
+		<div id="collect-grid-cmd" class="container-cmd" v-if="gridCmdControls">
+			<template
+				v-for="(cmd, index) in gridCmdControls"
+				:key="`cmd-${index}`"
+			>
+				<component
+					:is="cmd.comp"
+					v-bind="cmd.compProps"
+					:get-current-cell="getCurrentCell"
+					@command="onCommand"
+				>
+				</component>
+			</template>
+		</div>
+
+		<div
+			v-if="!isEditMode && !isInsertMode && editError"
+			class="form-error"
+		>
+			{{ editError }}
+		</div>
+
+		<GridSearchPanel
+			v-if="searchResults && searchResults.length"
+			:result-list="searchResults"
+			@remove="removeSearchPanel"
+		>
+		</GridSearchPanel>
+
+		<ul ref="hierarchyTree">
+			<TreeNode
+				v-for="node in data"
+				:node="node"
+				:type-formatter="typeFormatter"
+				:children-field="childrenField"
+				:key-field-ids="['id']"
+				:column="column"
+			/>
+		</ul>
+	</div>
+
+	<Confirmation
+		v-model="confirmation.show"
+		:txt="confirmation.text"
+		@confirm="confirmation.confirmed"
+		@reject="confirmation.rejected"
+	>
+	</Confirmation>
+
+	<!--<Teleport to="body"> -->
+	<modal
+		v-if="showModalEdit"
+		v-bind="(edit as GridEdit)?.form?.modalProps"
+		@close="cancelEdit"
+	>
+		<template #body>
+			<template v-if="(edit as GridEdit)?.form">
+				<component
+					:is="(edit as GridEdit)?.form?.comp"
+					:data="store.editRow.value"
+					v-bind="(edit as GridEdit)?.form?.compProps"
+					:error="editError"
+					:currentId="
+						currentCell
+							? formControlList[currentCell.col].id
+							: undefined
+					"
+					:isNew="isInsertMode"
+					@close="closeModal"
+				>
+				</component>
+			</template>
+			<template v-else>
+				<Form
+					:controlList="formControlList"
+					:data="store.editRow.value"
+					:error="editError"
+					:currentId="
+						currentCell
+							? formControlList[currentCell.col].id
+							: undefined
+					"
+					:isNew="isInsertMode"
+					@submit="submitEdit"
+					@save="saveEdit"
+					@cancel="cancelEdit"
+				>
+				</Form>
+			</template>
+		</template>
+	</modal>
+	<!--</Teleport> -->
+
+	<modal v-if="showModalSearch" @close="showModalSearch = false">
+		<template #body>
+			<GridSearch
+				:columns="[column]"
+				:column-index="currentCell?.col"
+				:init-search="initSearch"
+				@cancel="cancelSearch"
+				@search="applySearch"
+			>
+			</GridSearch>
+		</template>
+	</modal>
+
+</template>
+
+<script setup lang="ts">
+import {
+	type Ref,
+	ref,
+	watch,
+	reactive,
+	useTemplateRef,
+	nextTick,
+	computed,
+	onMounted,
+	onUnmounted,
+} from 'vue';
+
+import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
+
+import TreeNode from './TreeNode.vue';
+
+import {
+	type GridCurrentCell,
+	type GridCommand,
+	type GridEdit,
+	GridEditMode,
+} from '../types/grid';
+
+import { type TreeProps } from '../types/tree';
+
+import {
+	renderCellData,
+	useFormControlList,
+	colControlType,
+} from '../utils/useGrid';
+
+import Modal from './Modal.vue';
+import Confirmation from './Confirmation.vue';
+import { type GridEditFormExpose } from './GridEditForm.vue';
+import Form from './Form.vue';
+import type { FormConfirmation, FormData  } from '../types/form';
+import { useGridStore } from '../stores/useGridStore';
+import GridSearch from './GridSearch.vue';
+import { GridSearchType } from '../types/GridSearch';
+import GridSearchPanel from './GridSearchPanel.vue';
+import { type GridSearchPanelVal } from '../types/GridSearchPanel';
+import { FilterJoinParam, FilterOperatorParam } from '../types/collection';
+import type { CollectionFilterFields } from '../types/collection';
+
+interface TrackableEvents {
+	wheel?: (e: WheelEvent) => void;
+	click?: (e: MouseEvent) => void;
+	dblclick?: (e: MouseEvent) => void;
+	contextmenu?: (e: MouseEvent) => void;
+	keydown?: (e: KeyboardEvent) => void;
+	keypress?: (e: KeyboardEvent) => void;
+}
+
+const {
+	treeKey,
+	keyFields,
+	childrenField,
+	edit = <GridEdit>{ mode: GridEditMode.inline },
+	editCommands = ['add', 'edit', 'del'],
+	forSelect = false,
+	multySelect = true,
+	navigate = { mouse: true, keyboard: true },
+	mousePopup,
+	title,
+	commands,
+	column,
+	typeFormatter,
+	refreshInterval = 0,
+	store,
+	error,
+	data,
+} = defineProps<TreeProps>();
+
+if (data) {
+	store.setData(data);
+}
+
+//checkings
+if (
+	(edit as GridEdit)?.mode === GridEditMode.view &&
+	(!(edit as GridEdit).routeName || (edit as GridEdit).routeName?.length == 0)
+) {
+	throw new Error(
+		"Tree setup failed: edit.mode set to 'view' but edit.routeName property not defined",
+	);
+}
+
+const editFormInsertRef = ref<GridEditFormExpose | null>(null);
+const editFormUpdateRef = ref<GridEditFormExpose | null>(null);
+
+const router = useRouter();
+const route = useRoute();
+watch(
+	() => route.query.params,
+	// (newParams: string | string[] | undefined) => {
+	(newParams) => {
+		let parsedParams = {};
+
+		if (typeof newParams === 'string') {
+			try {
+				parsedParams = JSON.parse(newParams);
+			} catch (error) {
+				console.error(
+					'Grid.vue store.setFetchParams() failed(): Invalid JSON:',
+					newParams,
+				);
+			}
+		}
+
+		store.setFetchParams(parsedParams);
+	},
+);
+
+const confirmation = reactive<FormConfirmation>({
+	show: false,
+	confirmed: undefined,
+	rejected: undefined,
+	text: '',
+});
+
+let currentCell: GridCurrentCell | null = <GridCurrentCell>{ row: 0, col: 0 }; //col is always 0
+const getCurrentCell = () => currentCell;
+const editError = ref<string | undefined>(error);
+
+//searching
+const searchResults = ref<GridSearchPanelVal[]>([]);
+const initSearch = ref<string | undefined>(undefined);
+
+const removeSearchPanel = (id: string) => {
+	store.removeFilter(id);
+	searchResults.value = searchResults.value.filter((v) => v.id != id);
+	if (searchResults.value.length == 0) {
+		commands?.forEach((cmd) => {
+			if (cmd.id == 'search') {
+				cmd.compProps = { ...cmd.compProps, applied: false };
+			}
+		});
+	}
+	// changePage(1);
+	tree.value?.focus();
+};
+
+const onSearch = () => {
+	showModalSearch.value = true;
+};
+
+const applySearch = (
+	columnId: string,
+	searchValue: any,
+	searchType: GridSearchType,
+) => {
+	showModalSearch.value = false;
+
+	//set applied to search command
+	commands?.forEach((cmd) => {
+		if (cmd.id == 'search') {
+			cmd.compProps = { ...cmd.compProps, applied: true };
+		}
+	});
+
+	const searchCol = column;
+	// columns.forEach((col) => {
+	// 	const filtered = col.filter((col) => col.id == columnId);
+	// 	if (filtered.length) {
+	// 		searchCol = filtered[0];
+	// 	}
+	// });
+	// if (!searchCol) {
+	// 	return; //???
+	// }
+
+	const { header, id, searchColumnId, searchColumnKeys } = searchCol;
+	let filterColumnId: string = searchColumnId ?? columnId;
+
+	let oper: FilterOperatorParam;
+	let searchValueDescr = '';
+
+	if (
+		typeof searchValue === 'object' &&
+		!searchColumnKeys &&
+		searchValue.descr
+	) {
+		//search value can not be an object here
+		searchValue = searchValue.descr;
+		//TODO: turn to id search
+		if (!searchColumnId) {
+			filterColumnId += "->>'descr'";
+		}
+	}
+
+	if (searchType == GridSearchType.ON_BEG) {
+		searchValue = `${searchValue}%`;
+		searchValueDescr = `${searchValue}*`;
+		oper = FilterOperatorParam.ILK;
+	} else if (searchType == GridSearchType.ON_END) {
+		searchValue = `%${searchValue}`;
+		searchValueDescr = `*${searchValue}`;
+		oper = FilterOperatorParam.ILK;
+	} else if (searchType === GridSearchType.ON_PART) {
+		searchValue = `%${searchValue}%`;
+		searchValueDescr = `*${searchValue}*`;
+		oper = FilterOperatorParam.ILK;
+	} else {
+		//exact value
+		oper = FilterOperatorParam.E;
+	}
+
+	let filterVal: CollectionFilterFields = {};
+
+	//handle ref filter by key
+	if (
+		typeof searchValue === 'object' &&
+		searchValue.keys &&
+		searchColumnKeys
+	) {
+		Object.keys(searchColumnKeys).forEach((key) => {
+			const value = searchColumnKeys[key];
+			if (searchValue.keys[key]) {
+				filterVal[value] = { o: oper, v: searchValue.keys[key] };
+			}
+		});
+	} else {
+		filterVal = { [filterColumnId]: { o: oper, v: searchValue } };
+	}
+
+	const filterId = store.addFilter({
+		j: FilterJoinParam.AND,
+		f: filterVal,
+	});
+	searchResults.value.push(<GridSearchPanelVal>{
+		id: filterId,
+		descr: header || id,
+		val: searchValueDescr,
+	});
+	// changePage(1);
+	tree.value?.focus();
+};
+
+const cancelSearch = () => {
+	showModalSearch.value = false;
+	tree.value?.focus();
+};
+
+const isEditMode = ref(false);
+const isInsertMode = ref(false);
+
+const { t } = useI18n();
+
+const tree = useTemplateRef('hierarchyTree');
+
+const gridUIStore = useGridStore();
+
+store.setColumns([column], keyFields); //pass property to store
+
+const showModalEdit = ref(false);
+const showModalSearch = ref(false);
+
+const selectedRows = ref(new Set());
+
+const gridCmdControls = computed(() => {
+	if (!commands) {
+		return;
+	}
+	return commands.filter((cmd: GridCommand) => cmd.btn);
+});
+
+const emit = defineEmits<{
+	select: [rowIndex: number];
+	custom: [id: string];
+}>();
+
+const isCurrentCell = (rowIndex: number, colIndex: number): boolean => {
+	return currentCell?.row === rowIndex;
+};
+
+const unsetHighlight = () => {
+	tree.value
+		?.querySelectorAll('.grid-cell-current')
+		.forEach((el) => el.classList.remove('grid-cell-current'));
+};
+
+const clickOnCell = (e: MouseEvent, rowIndex: number, colIndex: number) => {
+	unsetHighlight();
+
+	currentCell = { row: rowIndex, col: colIndex };
+
+	const target = e.target as HTMLElement;
+	target.classList.add('grid-cell-current');
+};
+
+const setCurrentCell = (
+	rowIndex: number | undefined,
+	colIndex: number | undefined,
+) => {
+	unsetHighlight();
+
+	if (rowIndex === undefined || colIndex === undefined) {
+		currentCell = null;
+	} else {
+		currentCell = { row: rowIndex, col: 0 };
+		// Find the new cell and add the class
+		const tbody = tree.value?.querySelector('tbody');
+		if (tbody) {
+			const newCell = tbody.rows[rowIndex]?.cells[colIndex];
+			if (newCell) {
+				newCell.classList.add('grid-cell-current');
+			}
+		}
+	}
+};
+
+const toggleRowSelection = (
+	rowIndex: number,
+	event: KeyboardEvent | MouseEvent,
+): void => {
+	if (!multySelect) return;
+
+	if (event.ctrlKey || event.metaKey) {
+		if (selectedRows.value.has(rowIndex)) {
+			selectedRows.value.delete(rowIndex);
+		} else {
+			selectedRows.value.add(rowIndex);
+		}
+	} else if (event.shiftKey) {
+		if (selectedRows.value.size === 0) {
+			selectedRows.value.add(rowIndex);
+		} else {
+			const lastSelected = Array.from(selectedRows.value).pop() as number; // Ensure number type
+			const [start, end] = [lastSelected, rowIndex].sort((a, b) => a - b);
+			for (let i = start; i <= end; i++) {
+				selectedRows.value.add(i);
+			}
+		}
+	} else {
+		selectedRows.value.clear();
+		// selectedRows.value.add(rowIndex);
+	}
+};
+
+const bindEvents = computed(() => {
+	const handlers: TrackableEvents = {};
+
+	if (navigate?.mouse) {
+		handlers.wheel = onMouseWheel;
+	}
+	if (navigate?.mouse && mousePopup) {
+		handlers.contextmenu = onContextMenu;
+	}
+	if (edit !== false || forSelect) {
+		handlers.dblclick = onDblClick;
+	}
+	if (navigate?.keyboard) {
+		handlers.keydown = onKeyDown;
+	}
+
+	return handlers;
+});
+
+const onContextMenu = (e: MouseEvent): void => {
+	e.preventDefault();
+	if (isEditMode.value || isInsertMode.value) {
+		return;
+	}
+};
+
+const onDblClick = (e: MouseEvent): void => {
+	if (
+		isEditMode.value ||
+		isInsertMode.value ||
+		!editCommands.includes('edit')
+	) {
+		return;
+	}
+
+	const td = (e.target as HTMLElement).closest('li');
+	if (td) {
+		window.getSelection()?.removeAllRanges();
+		e.stopPropagation();
+		e.preventDefault();
+
+		onSelectCell(e);
+	}
+};
+
+//keyboard events
+const onKeyDown = (e: KeyboardEvent): void => {
+	// if(e.key == "Escape" && (isEditMode.value || isInsertMode.value)){
+	// 	e.preventDefault();
+	// 	cancelEdit();
+	// 	return;
+
+	if (e.key == 'Enter' && !isEditMode.value && !isInsertMode.value) {
+		if (forSelect) {
+			emit('select', currentCell ? currentCell.row : -1);
+		} else if (editCommands.includes('edit')) {
+			//if edit allowed
+			e.preventDefault();
+			onEditRow();
+		}
+		return;
+
+		// } else if (e.key == 'F5' && !isEditMode.value && !isInsertMode.value) {
+		// 	//copy
+		// 	e.preventDefault();
+		// 	onCopyRow();
+		// 	return;
+	} else if (
+		e.key == 'Insert' &&
+		!isEditMode.value &&
+		!isInsertMode.value &&
+		editCommands.includes('add')
+	) {
+		//if insert allowed
+		e.preventDefault();
+		onAddRow();
+		return;
+	} else if (
+		e.key == 'Delete' &&
+		!isEditMode.value &&
+		!isInsertMode.value &&
+		editCommands.includes('del')
+	) {
+		//if delete allowed
+		e.preventDefault();
+		onDelete();
+		return;
+	}
+
+	//row depend events
+	if (
+		!store.displayedData.value ||
+		!store.displayedData.value.length ||
+		!currentCell ||
+		isEditMode.value ||
+		isInsertMode.value
+	) {
+		return;
+	}
+
+	if (/^[a-zA-Zа-яА-Я0-9]$/.test(e.key)) {
+		e.preventDefault();
+		initSearch.value = e.key;
+		onSearch();
+		return;
+	}
+
+	let { row, col } = currentCell;
+	switch (e.key) {
+		case 'ArrowUp':
+			e.preventDefault();
+			if (row > 0) {
+				toggleRowSelection(row, e);
+				row--;
+			}
+			break;
+
+		case 'ArrowDown':
+			e.preventDefault();
+			if (row < store.displayedData.value.length - 1) {
+				toggleRowSelection(row, e);
+				row++;
+			}
+			break;
+
+		case 'ArrowLeft':
+			e.preventDefault();
+			if (col > 0) col--;
+			break;
+
+		case 'ArrowRight':
+			e.preventDefault();
+			if (col < store.columnList.value.length - 1) col++;
+			break;
+
+		default:
+			return;
+	}
+
+	setCurrentCell(row, col);
+};
+
+//double click on sell: select or to edit mode
+const onSelectCell = (e: MouseEvent | KeyboardEvent): void => {
+	if (edit !== false && (!forSelect || e.ctrlKey)) {
+		onEditRow();
+	} else if (forSelect && !e.ctrlKey) {
+		emit('select', currentCell ? currentCell.row : -1);
+	}
+};
+
+const resolveCmdResult = (result: Promise<string>, onOk?: () => void) => {
+	result.then((err: string) => {
+		if (typeof err === 'string' && err.length) {
+			//show error in form
+			if (err !== 'continue') {
+				//not an error
+				editError.value = err;
+			}
+		} else if (onOk) {
+			onOk();
+		}
+	});
+};
+
+const closeEdit = () => {
+	if ((edit as GridEdit)?.mode === GridEditMode.modal) {
+		showModalEdit.value = false;
+	}
+	if (isEditMode.value) {
+		isEditMode.value = false;
+	} else if (isInsertMode.value) {
+		isInsertMode.value = false;
+	}
+};
+
+const submitEditModified = (
+	submitData: FormData,
+	editData: FormData,
+	closeEditMode: boolean,
+) => {
+	if (isEditMode.value) {
+		const result = new Promise<string>((resolve) =>
+			store.updateRow(
+				submitData,
+				editData,
+				currentCell ? currentCell.row : -1,
+				resolve,
+			),
+		);
+		resolveCmdResult(result, () => {
+			if (closeEditMode) {
+				closeEdit();
+			}
+		});
+	} else if (isInsertMode.value) {
+		const result = new Promise<string>((resolve) =>
+			store.insertRow(submitData, editData, resolve),
+		);
+		resolveCmdResult(result, () => {
+			if (closeEditMode) {
+				closeEdit();
+				//make row current
+				if (store.displayedData.value.length) {
+					setCurrentCell(store.displayedData.value.length - 1, 0);
+				}
+			}
+		});
+	}
+};
+
+//submit is the actual submitted form with keys, no objects,
+//where editData holds the original edited object.
+const submitEdit = (submitData: FormData, editData: FormData) => {
+	//modified
+	submitEditModified(submitData, editData, true);
+	tree.value?.focus();
+};
+
+const saveEdit = (submitData: FormData, editData: FormData) => {
+	//modified
+	submitEditModified(submitData, editData, false);
+	tree.value?.focus();
+};
+
+//Used for both edit && insert.
+const cancelEdit = (modified: boolean) => {
+	if (!modified) {
+		closeEdit();
+		tree.value?.focus();
+		return;
+	}
+
+	confirmation.confirmed = function () {
+		tree.value?.focus();
+		closeEdit();
+	};
+	confirmation.rejected = function () {
+		tree.value?.focus();
+		return;
+	};
+	confirmation.text = t('Grid.cancelChanges');
+	confirmation.show = true;
+};
+
+const onAddRow = () => {
+	if ((edit as GridEdit)?.mode == GridEditMode.router) {
+		if (treeKey) {
+			gridUIStore.saveState(
+				treeKey,
+				0,
+				currentCell,
+				{ filters: store.getFilters(), panels: searchResults.value },
+				null,
+			);
+		}
+
+		router.push({
+			name: (edit as GridEdit).routeName,
+		}); //redirect
+
+		return;
+	}
+	store.setInsertRowMode();
+
+	editError.value = undefined;
+	if ((edit as GridEdit)?.mode === GridEditMode.modal) {
+		showModalEdit.value = true;
+	}
+	isInsertMode.value = true;
+};
+
+const onCopyRow = () => {
+	if ((edit as GridEdit)?.mode === GridEditMode.router) {
+		if (treeKey) {
+			gridUIStore.saveState(
+				treeKey,
+				0,
+				currentCell,
+				{ filters: store.getFilters(), panels: searchResults.value },
+				null,
+			);
+		}
+
+		const keys = store.getRowKeys(currentCell ? currentCell.row : -1);
+		router.push({
+			name: (edit as GridEdit).routeName,
+			query: Object.assign({}, keys, { copy: true }),
+		}); //redirect
+		return;
+	}
+
+	store.setCopyRowMode(currentCell ? currentCell.row : -1);
+
+	editError.value = undefined;
+	if ((edit as GridEdit)?.mode == GridEditMode.modal) {
+		showModalEdit.value = true;
+	}
+	isInsertMode.value = true;
+};
+
+const onEditRow = () => {
+	if ((edit as GridEdit)?.mode == GridEditMode.router) {
+		if (treeKey) {
+			gridUIStore.saveState(
+				treeKey,
+				0,
+				currentCell,
+				{ filters: store.getFilters(), panels: searchResults.value },
+				null,
+			);
+		}
+
+		const keys = store.getRowKeys(currentCell ? currentCell.row : -1);
+		router.push({
+			name: (edit as GridEdit)?.routeName,
+			query: keys,
+		}); //redirect
+		return;
+	} else if ((edit as GridEdit)?.mode == GridEditMode.view) {
+		//standalone window
+		return;
+	}
+
+	store.setUpdateRowMode(currentCell ? currentCell.row : -1);
+
+	editError.value = undefined;
+	if ((edit as GridEdit)?.mode == GridEditMode.modal) {
+		showModalEdit.value = true;
+	}
+	isEditMode.value = true;
+};
+
+// onCommand is a handler for all external commands.
+// Predefined commands are executed by grid itself,
+// other, unknow commands are passed to parent components as
+// custom events.
+const onCommand = (cmd: string) => {
+	if (isInsertMode.value || isEditMode.value) {
+		return;
+	}
+	// console.log('on command from Grid', cmd);
+	switch (cmd) {
+		case 'add_row':
+			onAddRow();
+			break;
+
+		case 'edit_row':
+			onEditRow();
+			break;
+
+		case 'copy_row':
+			onCopyRow();
+			break;
+
+		case 'print':
+			onPrint();
+			break;
+
+		case 'refresh':
+			onRefresh();
+			break;
+
+		case 'delete_row':
+			onDelete();
+			break;
+
+		case 'search':
+			initSearch.value = undefined;
+			onSearch();
+			break;
+
+		default:
+			emit('custom', cmd);
+			break;
+	}
+	// table.value?.focus();
+};
+
+const onPrint = () => {
+	const result = new Promise<string>((resolve) =>
+		store.printCollection(resolve),
+	);
+	resolveCmdResult(result);
+};
+
+const restoreCurrentCell = () => {
+	if (
+		!currentCell &&
+		store.displayedData.value &&
+		store.displayedData.value.length
+	) {
+		setCurrentCell(0, 0);
+	} else if (
+		currentCell &&
+		(!store.displayedData.value || !store.displayedData.value.length)
+	) {
+		setCurrentCell(undefined, undefined);
+	} else if (
+		currentCell &&
+		store.displayedData.value &&
+		store.displayedData.value.length <= currentCell.row
+	) {
+		setCurrentCell(store.displayedData.value.length - 1, 0);
+	}
+	tree.value?.focus();
+};
+
+const onRefresh = () => {
+	editError.value = undefined;
+	const result = new Promise<string>((resolve) => store.refresh(resolve));
+	resolveCmdResult(result, () => {
+		restoreCurrentCell();
+	});
+};
+
+const onDeleteCont = (): void => {
+	let rowsToDelete = [];
+	if (selectedRows.value.size > 0) {
+		// Ensure selectedRows.value is a Set of numbers
+		rowsToDelete = Array.from(selectedRows.value as Set<number>).map(
+			(index) => index,
+		);
+	} else {
+		rowsToDelete.push(currentCell ? currentCell.row : -1);
+	}
+
+	const result = new Promise<string>((resolve) =>
+		store.deleteRows(rowsToDelete, resolve),
+	);
+	resolveCmdResult(result, () => {
+		restoreCurrentCell();
+	});
+
+	selectedRows.value.clear();
+};
+
+const onDelete = () => {
+	confirmation.confirmed = function () {
+		onDeleteCont();
+	};
+	confirmation.rejected = function () {
+		return;
+	};
+	const selectedCount = selectedRows.value.size;
+	if (selectedCount) {
+		confirmation.text = t('Grid.deleteBatchConfirmation', {
+			count: selectedCount,
+		});
+	} else {
+		confirmation.text = t('Grid.deleteConfirmation');
+	}
+	confirmation.show = true;
+};
+
+const isRowInView = (row: Element) => {
+	return false;
+}
+
+const scrollToRow = (rowIndex: number) => {
+	nextTick(() => {
+		if (!tree.value) return;
+
+		const rows = tree.value.querySelectorAll('tbody tr');
+		const selectedRow = rows[rowIndex];
+
+		if (selectedRow && !isRowInView(selectedRow)) {
+			selectedRow.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest',
+			});
+		}
+	});
+};
+// Add mouse scroll logic
+const onMouseWheel = (e: WheelEvent): void => {
+	if (isEditMode.value || isInsertMode.value) {
+		return;
+	}
+	if (!currentCell || !store.displayedData.value.length) {
+		return;
+	}
+
+	let { row } = currentCell;
+	const totalRows = store.displayedData.value.length;
+
+	// Scroll direction (wheel delta)
+	if (e.deltaY > 0) {
+		// Scroll Down
+		if (row < totalRows - 1) {
+			row++;
+		}
+	} else if (e.deltaY < 0) {
+		// Scroll Up
+		if (row > 0) {
+			row--;
+		}
+	}
+
+	setCurrentCell(row, currentCell.col);
+	scrollToRow(row);
+
+	e.preventDefault();
+};
+
+const isRowSelected = (index: number) => selectedRows.value.has(index);
+
+//refresh on timer
+let refreshTimerId: number | undefined;
+
+const setRefreshTimer = () => {
+	if (refreshInterval) {
+		refreshTimerId = window.setInterval(() => {
+			const result = new Promise<string>((resolve) =>
+				store.refresh(resolve),
+			);
+			resolveCmdResult(result);
+		}, refreshInterval);
+	} else if (refreshTimerId) {
+		clearInterval(refreshTimerId);
+	}
+};
+
+onMounted(() => {
+	if (treeKey && gridUIStore.getState(treeKey)?.restoreOnNextLoad) {
+		const savedState = gridUIStore.getState(treeKey);
+		if (savedState?.restoreOnNextLoad) {
+			currentCell = savedState.currentCell;
+
+			if (savedState.filter && savedState.filter.panels) {
+				searchResults.value = savedState.filter.panels;
+				store.setFilters(savedState.filter.filters);
+			}
+			gridUIStore.clearState(treeKey);
+		}
+	}
+
+	setRefreshTimer();
+
+	if (!store.displayedData.value) {
+		onRefresh();
+	}
+});
+
+const generateRowKey = (row: FormData, index: number) => {
+	if (!keyFields || keyFields.length === 0) {
+		return index; // Fallback to index if no keyFields are defined
+	}
+	return keyFields.map((field: string) => row[field]).join('_'); // Combine key field values
+};
+
+const closeModal = (refresh: boolean) => {
+	closeEdit();
+	if (refresh) {
+		onRefresh();
+	}
+};
+
+onUnmounted(() => {
+	if (refreshTimerId) {
+		window.clearInterval(refreshTimerId);
+	}
+});
+
+const getEditRow = (): Ref | undefined => {
+	if (isEditMode.value) {
+		return editFormUpdateRef.value?.editRow;
+	} else if ( isInsertMode.value) {
+		return editFormInsertRef.value?.editRow;
+	}
+};
+
+export interface GridExpose {
+	getCurrentCell: () => GridCurrentCell | null;
+	onRefresh: () => void;
+	getEditRow: () => Ref | undefined;
+}
+defineExpose<GridExpose>({
+	getCurrentCell,
+	onRefresh,
+	getEditRow,
+});
+
+</script>

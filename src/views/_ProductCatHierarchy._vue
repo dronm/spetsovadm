@@ -1,0 +1,125 @@
+<template>
+	<Grid
+		grid-key="productCatHierarchy"
+		:data="treeData"
+		:type-formatter="typeFormatter"
+		:key-fields="['id']"
+		:columns="columns"
+		title="t('ProductCatHierarchy.title')"
+		:show-header="false"
+		:store="store"
+		:commands="gridSrvCommands"
+	/>
+
+</template>
+
+<script setup lang="ts">
+import { ref, markRaw } from 'vue';
+
+import Grid from '@/lib/components/Grid.vue';
+import { type GridSrvOperations, GridSrvOperation } from '@/lib/types/gridSrv';
+
+import { typeFormatter } from '@/utils/typeFormatter';
+import type { GridCol, GridCommand } from '@/lib/types/grid';
+import type { FormData } from '@/lib/types/form';
+import { useCollectionAPI } from '@/lib/composables/useCollectionAPI';
+import GridExpandableColLocal from "@/lib/components/GridExpandableColLocal.vue";
+
+import {
+	productCatHierarchy,
+	productCatDetail,
+	productCatAdd,
+	productCatUpdate,
+	productCatDel,
+} from '@/services/productCat';
+import GridCmdAddRow from '@/lib/components/GridCmdAddRow.vue';
+import GridCmdEditRow from '@/lib/components/GridCmdEditRow.vue';
+import GridCmdDeleteRow from '@/lib/components/GridCmdDeleteRow.vue';
+import GridCmdSearch from '@/lib/components/GridCmdSearch.vue';
+import GridCmdRefresh from '@/lib/components/GridCmdRefresh.vue';
+import { DataType } from '@/lib/types/dataTypes';
+import type { FormEdit } from '@/lib/types/form';
+
+const columns = <GridCol[][]>[
+	[
+		{
+			id: 'id',
+			field: {
+				dataType: DataType.int,
+				pKey: true,
+				srvCalc: true,
+			},
+			visible: false,
+		},
+		{
+			id: 'name',
+			field: {
+				dataType: DataType.text,
+			},
+			formatControl:<FormEdit>{
+				comp: markRaw(GridExpandableColLocal),
+				compProps: {
+					typeFormatter: typeFormatter,
+					keyFields: ["id"],
+					childrenField: "children",
+					column: <GridCol>{
+						id: "name"
+					}
+				}
+			},
+		},
+		{
+			id: 'children',
+			field: {
+				dataType: DataType.json,
+			},
+			visible: false,
+		},
+	]
+];
+
+const treeData = ref<FormData[]>([
+	{
+		id: 1,
+		name: 'Item 1',
+		children: [
+			{ id: 2, name: 'Item 1.1', children: [] },
+			{ id: 3, name: 'Item 1.2', children: [] },
+		],
+	},
+	{
+		id: 4,
+		name: 'Item 2',
+		children: [
+			{ id: 5, name: 'Item 2.1', children: [] },
+			{ id: 6, name: 'Item 2.2', children: [] },
+		],
+	},
+	{
+		id: 7,
+		name: 'Item 3',
+		children: [
+			{ id: 8, name: 'Item 3.1', children: [] },
+			{ id: 9, name: 'Item 3.2', children: [] },
+		],
+	},
+]);
+
+const gridSrvCommands: GridCommand[] = [
+	{ id: 'add_row', btn: true, comp: GridCmdAddRow },
+	{ id: 'edit_row', btn: true, comp: GridCmdEditRow },
+	{ id: 'delete_row', btn: true, comp: GridCmdDeleteRow },
+	{ id: 'search', btn: true, comp: GridCmdSearch },
+	{ id: 'refresh', btn: true, comp: GridCmdRefresh },
+];
+
+const store = useCollectionAPI();
+store.setSrvOperations(<GridSrvOperations>{
+	[GridSrvOperation.insert]: productCatAdd,
+	[GridSrvOperation.update]: productCatUpdate,
+	[GridSrvOperation.delete]: productCatDel,
+	[GridSrvOperation.list]: productCatHierarchy,
+	[GridSrvOperation.detail]: productCatDetail,
+});
+
+</script>

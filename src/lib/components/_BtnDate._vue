@@ -1,0 +1,47 @@
+<template>
+	<div class="relative">
+		<Button
+			:title="t('Select Date')"
+			class="action"
+			variant="btn-cmd"
+			@click="toggleCalendar"
+		>
+			<font-awesome-icon :icon="['fas', 'calendar']" />
+		</Button>
+		<div
+			v-if="showCalendar"
+			class="absolute top-full left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-10"
+		>
+			<VueDatePicker v-model="selectedDate" @update:modelValue="onDateSelect" />
+		</div>
+	</div>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+
+import Button from "./Button.vue";
+
+const { t } = useI18n();
+const showCalendar = ref(false);
+const selectedDate = ref<Date | null>(null);
+
+const emit = defineEmits<{ result: [value: Date] }>();
+
+const toggleCalendar = () => {
+	showCalendar.value = !showCalendar.value;
+};
+
+const onDateSelect = (date: Date) => {
+	showCalendar.value = false;
+	if (date) {
+		emit("result", date);
+	}
+};
+</script>
+
+<style scoped></style>

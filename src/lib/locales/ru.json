@@ -1,0 +1,187 @@
+{
+	"httpErrors": {
+		"unavailable": "Сетевая ошибка при попытке доступа к ресурсу.",
+		"status404": "Запрошенный ресурс не найден.",
+		"staus500": "Ошибка на сервере, попробуйте позже.",
+		"status401": "Доступ без авторизации.",
+		"status403": "У вас нет разрешения на лоступ к ресурсу.",
+		"any": "Сетевая ошибка {status}"
+	},
+	"Enum": {
+		"trueValue": "да",
+		"falseValue": "нет"
+	},
+	"Pagination": {
+		"goFirstTitle": "Перейти в начало",
+		"goFirst": "Первая",
+		"goPrevTitle": "Перейти предыдущую страницу",
+		"goPrev": "Предыдущая",
+		"goLastTitle": "Перейти на последнюю страницу",
+		"goLast": "Последняя",
+		"goNextTitle": "Перейти следующаю страницу",
+		"goNext": "Следующая",
+		"currentPageTitle": "Текущая страница",
+		"goToPageTitle": "Перейти на страницу"
+	},
+	"GridCmdInsert": {
+		"caption": "Добавить",
+		"title": "Добавить новую строку"
+	},
+	"GridCmdSearch": {
+		"caption": "Найти",
+		"title": "Найти значение"
+	},
+	"GridCmdEdit": {
+		"caption": "Редактировать",
+		"title": "Редактировать текщую строку"
+	},
+	"GridCmdAddRow": {
+		"caption": "Добавить",
+		"title": "Добавить строку"
+	},
+	"GridCmdCopy": {
+		"caption": "Копировать",
+		"title": "Копировать текущйю строку"
+	},
+	"GridCmdPrint": {
+		"caption": "Печать",
+		"title": "Отправить содержимое таблицы на печать"
+	},
+	"GridCmdRefresh": {
+		"caption": "Обновить",
+		"title": "Обновить содержимое таблицы"
+	},
+	"GridCmdExport": {
+		"caption": "Экспорт",
+		"title": "Экспортировать содержимое таблицы в файл"
+	},
+	"GridCmdDelete": {
+		"caption": "Удалить",
+		"title": "Удалить текущую строку"
+	},
+	"GridCmdAllCommands": {
+		"caption": "Все команды",
+		"title": "Показать все команды"
+	},
+	"Grid": {
+		"sortColTitle": "Кликниет для сортировки по данной колонке",
+		"rowEditTitle": "Двойной клик для редактирования строки",
+		"errRowIndexOutOfBounds": "row index ({rowIndex}) out of bounds (0,{upBound})",
+		"cancelChanges": "Отказаться от изменений?",
+		"deleteConfirmation": "Удалить текущую строку?",
+		"deleteBatchConfirmation": "Delete rows ({count})?"
+	},
+	"Form": {
+		"submitCaption": "ОК",
+		"submitTitle": "Записать изменения и закрыть",
+		"saveCaption": "Записать",
+		"saveTitle": "Записать изменения",
+		"cancelCaption": "Отмена",
+		"cancelTitle": "Отказаться от изменений, закрыть",
+		"validationError": "Обнаружены ошибки",
+		"submitted": "Данные записаны",
+		"noDataToSubmit": "Нет данных для записи"
+	},
+	"FormWin": {
+		"erFetchOperationNotDefined": "fetch operation not defined"
+	},
+	"Validation": {
+		"dataType": "wrong data type",
+		"required": "требуется значение",
+		"fixList": "value is not in the list",
+		"regExp": "value does not match constraint",
+
+		"minVal": "value is too small, minimum is {minVal}",
+		"maxVal": "value is too big, maximum is {maxVal}",
+		"precision": "precision of float exceeds {precision}",
+
+		"minLen": "value length is too short, minimum is {minLen}",
+		"maxLen": "value length is too long, maximum is {maxLen}",
+		"fixLen": "value length must be equal to {fixLen}",
+
+		"arrFixLen": "array length must be equal to {fixLen}",
+		"arrMinLen": "array length must be equal to {minLen}",
+		"arrMaxLen": "array length must be equal to {maxLen}"
+	},
+	"Confirmation": {
+		"confirmCaption": "Yes",
+		"confirmTitle": "Confirm choice",
+		"rejectCaption": "No",
+		"rejectTitle": "Reject choice",
+		"cancelCaption": "Cancel",
+		"cancelTitle": "Cancel choice"
+	},
+	"BtnOpen": {
+		"title": "Open detail form"
+	},
+	"BtnAdd": {
+		"title": "Add new record"
+	},
+	"BtnSelect": {
+		"title": "Select in a list form"
+	},
+	"BtnClear": {
+		"title": "Clear input"
+	},
+	"EditDropbox": {
+		"btnOpenTitle": "Show items"
+	},
+	"GridView": {
+		"selectBtn": {
+			"caption": "Выбрать",
+			"title": "Выбрать текущую строку, закрыть форму"
+		},
+		"cancelBtn": {
+			"caption": "Отмена",
+			"title": "Закрыть форму без выбора строки"
+		}
+	},
+	"NotificationWindow": {
+		"msgTypes": {
+			"err": "Ошибка",
+			"warn": "Предупреждение",
+			"ok": "Успешное выполнение",
+			"info": "Информация"
+		}
+	},
+	"FormCustom": {
+		"saveDone": "Данные записаны",
+		"saveNotValid": "Данные записаны",
+		"saveNoData": "Нет данных для записи",
+		"saveError": "Ошибка записи"
+	},
+	"GridSearch": {
+		"title": "column search",
+		"searchValue": "Что искать:",
+		"columnList": "Где искать:",
+		"searchType": {
+			"title": "Как искать:",
+			"onBegin": "по началу",
+			"onPart": "по части",
+			"onEnd": "по окончанию",
+			"onExact": "по точному совпадению"
+		},
+		"cmdSearch": {
+			"title": "Найти указанное значение по выбранной колонке",
+			"caption": "Найти"
+		},
+		"cmdCancel": {
+			"title": "Отменить поиск, закрыть форму",
+			"caption": "Отмена"
+		}
+	},
+	"GridSearchPanel": {
+		"descrTitle": "Колонка таблицы",
+		"valueTitle": "Значение фильтра",
+		"removeTitle": "Удалить фильтр"
+	},
+	"PeriodEdit": {
+		"prevMonth": "Предыдущий месяц",
+		"prevYear": "Предыдущий год",
+		"prevDay": "Предыдущий день",
+		"nextMonth": "Следующий месяц",
+		"nextYear": "Следующий год",
+		"nextDay": "Следующий день",
+		"nextDay": "Следующий день"
+	}
+}

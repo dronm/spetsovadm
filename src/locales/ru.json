@@ -1,0 +1,1201 @@
+{
+	"Errors": {
+		"fetchError": "Ошибка загрузки данных: {txt}",
+		"extensionIsNotAllowed": "Запрещено загружать файл с данным расширением"
+	},
+	"Notifications": {
+		"loading": "Загрузка данных..."
+	},
+	"AttachmentPreview": {
+		"alertPopupBlocked": "Всплывающее окно заблокировано. Проверьте настройки браузера"
+	},
+	"App": {
+		"menuProfile": {
+			"caption": "Профиль"
+		},
+		"menuLogout": {
+			"caption": "Выход"
+		}
+	},
+	"MainLayout": {
+		"routes": {
+			"Main": {
+				"caption": "Главная",
+				"captionFull": "Главная",
+				"title": "Перейти на главную страницу"
+			},
+			"About": {
+				"caption": "О компании",
+				"captionFull": "О компании",
+				"title": "Перейти на страницу о компании"
+			},
+			"Store": {
+				"caption": "Магазины",
+				"captionFull": "Магазины с адресами",
+				"title": "Перейти на страницу с адресами магазинов"
+			}
+		}
+	},
+	"Header": {
+		"CatBtn": {
+			"caption": "Каталог",
+			"title": "Каталог тваров"
+		},
+		"CatPopover": {
+			"badgeTitle": "Количество товаров в категории"
+		},
+		"ProductSearch": {
+			"title": "Поиск товаров, категорий",
+			"placeholder": "Введите для поиска",
+			"btnTitle": "Нажмите для поиска"
+		},
+		"HeadMenu": {
+			"Likes": {
+				"title": "Избранное"
+			},
+			"Cart": {
+				"title": "Корзины"
+			},
+			"UserLogin": {
+				"title": "Авторизоваться в личном кабинете пользователя",
+				"errIncorrectTel": "Неверный формат телефона",
+				"errIncorrectEmail": "Неверный формат электронной почты",
+				"errIncorrectInput": "Номер телефона или электронная почта"
+			}
+		}
+	},
+	"Store": {
+		"localStorage": {
+			"err": "Локальное хранилище не поддерживается"
+		}
+	},
+	"Login": {
+		"title": {
+			"all": "Авторизация или регистрация",
+			"auth": "Авторизация"
+		},
+		"goBack": "Назад",
+		"loginPwd": {
+			"label": "логин",
+			"placeholder": "логин пользователя",
+			"title": "логин пользователя"
+		},
+		"login": {
+			"label": "логин (email или телефон)",
+			"placeholder": "email или телефон",
+			"title": "адрес электронной почты или телефон"
+		},
+		"password": {
+			"label": "Пароль",
+			"placeholder": "пароль",
+			"title": "пароль пользователя"
+		},
+		"name": {
+			"label": "ФИО",
+			"placeholder": "Фамилия Имя Отчество",
+			"title": "Полное ФИО пользователя"
+		},
+		"email": {
+			"label": "Эл.почта",
+			"placeholder": "адрес эл.почты",
+			"title": "адрес электронной почты пользователя"
+		},
+		"tel": {
+			"label": "Телефон",
+			"title": "номер мобильного телефона пользователя"
+		},
+		"code": {
+			"label": "Код",
+			"sentSMS": "СМС с кодом отправлено на телефон",
+			"sentWA": "сообщение с кодом отправлено в Watsapp",
+			"sentTM": "сообщение с кодом отправлено в Telegram",
+			"timeLeft": "Поторный код можно отправить через {tm}",
+			"placeholder": "код проверки",
+			"title": "введите код для проверки"
+		},
+		"sendActionInf": {
+			"label": "Отправлять информацию об акциях"
+		},
+		"submit": "Войти",
+		"resendCode": "Отправить код",
+		"verifyCode": "Проверить код",
+		"errInvalidCred": "Неверное имя пользователя или пароль",
+		"notifLogged": "Авторизован",
+		"notifSendCode": "Отправлен код проверки",
+		"notifCheckCode": "Проверьте код авторизации",
+		"notifLogError": "Ошибка авторизации",
+		"notifRegister": "Регистрация нового пользователя"
+	},
+	"Likes": {
+		"header": "Избранное"
+	},
+	"MainCarousel": {
+		"iconArrowLeft": "Следущая картинка",
+		"iconArrowRight": "Предыдущая картинка"
+	},
+	"PopCat": {
+		"header": "Популярные категории"
+	},
+	"ProductPublicListCard": {
+		"toLikesTitle": "Добавить в избранное",
+		"formLikesTitle": "Убрать из избранного",
+		"submitCaption": "В корзину",
+		"submitTitle": "Добавить товар в корзину",
+		"availableCaption": "В наличии",
+		"notAvailableCaption": "Нет в наличии"
+	},
+	"ProductPublicDetail": {
+		"notAvailable": "Нет в наличии",
+		"imgSlider": {
+			"previous": "prev picture",
+			"next": "next picture"
+		}
+	},
+	"NotificationWindow": {
+		"msgTypes": {
+			"err": "ошибка",
+			"warn": "предупреждение",
+			"info": "информация",
+			"ok": "ок"
+		}
+	},
+	"Pagination": {
+		"goFirstTitle": "Перейти в начало",
+		"goFirst": "<< Первая",
+		"goPrevTitle": "Перейти предыдущую страницу",
+		"goPrev": "< Предыдущая",
+		"goLastTile": "Перейти на последнюю страницу",
+		"goLast": "Последняя >>",
+		"goNextTitle": "Перейти следующаю страницу",
+		"goNext": "Следующая >",
+		"currentPageTitle": "Текущая страница",
+		"goToPageTitle": "Перейти на страницу"
+	},
+	"ProductPublicListFilter": {
+		"countryFilterTitle": "Страна",
+		"brandFilterTitle": "Брэнд",
+		"selectNoValue": "-Выберите-",
+		"submitTitle": "Применить фильтры",
+		"submitCaption": "Применить",
+		"resetTitle": "Сбросить все фильтры",
+		"resetCaption": "Сбросить",
+		"minPrice": "Цена от",
+		"minPricePlaceholder": "минимальная цена",
+		"maxPrice": "до",
+		"maxPricePlaceholder": "максимальная цена"
+	},
+	"NotFound": {
+		"pageNotFoundTxt": "Страница не найдена",
+		"redirectTxt": "Вы будите перенеправлены на домашнюю страницу"
+	},
+	"UserList": {
+		"title": "Пользователи",
+		"columns": {
+			"name": "Логин",
+			"role": "Роль"
+		},
+		"noDataTitle": "Нет пользователей"
+	},
+	"BrandList": {
+		"title": "Брэнды",
+		"columns": {
+			"name": "Наименование"
+		},
+		"noDataTitle": "Нет брэндов"
+	},
+	"LoginList": {
+		"title": "Сессии",
+		"columns": {
+			"date_time_in": "Время начала",
+			"date_time_out": "Время окончания",
+			"users_ref": "Пользователь",
+			"set_date_time": "Время посл.чтения",
+			"user_agent_descr": "Агент"
+		}
+	},
+	"TimeZoneList": {
+		"title": "Временные зоны",
+		"columns": {
+			"name": "Наименование"
+		},
+		"noDataTitle": "Нет временных зон"
+	},
+	"StoreList": {
+		"title": "Магазины",
+		"columns": {
+			"address": "Адрес",
+			"email": "Эл.почта",
+			"work_hours": "Часы работы",
+			"tels": "Телефоны",
+			"pos_lat": "Широта",
+			"pos_lon": "Долгота"
+		},
+		"noDataTitle": "Нет магазинов"
+	},
+	"Cart": {
+		"addNewTitle": "Создать новую корзину",
+		"removeCartTitle": "Удалить корзину",
+		"removeCartConfirmation": "Удалить корзину со всеми товарами?",
+		"editNameTitle": "Изиенить наименование конзины",
+		"emptyText": "Нет товаров в корзине",
+		"nameTemplate": "Корзина ",
+		"header": "Корзина",
+		"selectCart": "Выберите корзину",
+		"btnRemoveTitle": "Удалить из корзины",
+		"product": "Товары",
+		"image": "",
+		"quantity": "Кол-во",
+		"price": "Цена",
+		"total": "Всего",
+		"totalAmount": "Итого"
+	},
+	"ProductCatList": {
+		"title": "Категории",
+		"subCatTitle": "Подкатегории",
+		"columns": {
+			"name": "Наименование",
+			"preview_path": "Картинка",
+			"parents_descr": "Иерархия",
+			"level": "Уровень",
+			"is_group": "Группа",
+			"product_count": "Кол-во товаров"
+		},
+		"noDataTitle": "Нет категорий"
+	},
+	"ProductCatDetail": {
+		"title": "Карточка категории товара",
+		"name": {
+			"label": "Наименование:",
+			"placeholder": "наименование категории",
+			"title": "Наименование категории товара"
+		},
+		"description": {
+			"label": "Описание:",
+			"placeholder": "Описание категории",
+			"title": "Описание категории товара"
+		},
+		"name_lat": {
+			"label": "Латинское наименование:",
+			"placeholder": "Латинское нование категории",
+			"title": "Латинское наименование категории товара"
+		},
+		"popularity": {
+			"label": "Популярность:",
+			"placeholder": "Популярность категории",
+			"title": "Популярность категории товара"
+		},
+		"order_position": {
+			"label": "Порядок сортировки:",
+			"placeholder": "Порядок сортировки категории",
+			"title": "Порядок сортировки категории товара"
+		},
+		"pictureUpload": {
+			"title": "Загрузить картинку категории",
+			"caption": "Загрузить картинку",
+			"success": "Файл картинки загружен"
+		},
+		"filters": {
+			"title": "Фильтры",
+			"columns": {
+				"line": "№",
+				"name": "Наименование",
+				"values": "Значения"
+			}
+		}
+	},
+	"ProductStockList": {
+		"title": "Остатки",
+		"columns": {
+			"wareshouses_ref": "Склад",
+			"characteristics_ref": "Харкатеристика",
+			"quant": "Кол-во",
+			"quant_available": "Доступно",
+			"update_at": "Обновлено"
+		},
+		"noDataTitle": "Нет остатков"
+	},
+	"ProductPriceList": {
+		"title": "Цены",
+		"columns": {
+			"price_types_ref": "Тип цен",
+			"characteristics_ref": "Харкатеристика",
+			"price": "Цена",
+			"update_at": "Обновлено"
+		},
+		"noDataTitle": "Нет цен"
+	},
+	"ProductDetail": {
+		"title": "Карточка товара",
+		"goBack": "Все товары",
+		"viewTitle": "Карточка товара",
+		"isMainText": "основное фото",
+		"pictureIndex": "Фото {PICT_INDEX} из {PICT_COUNT}",
+		"tabs": {
+			"common": "Реквизиты",
+			"pictures": "Фотографии",
+			"product_cats": "Категории",
+			"certs": "Сертификаты",
+			"chars": "Характеристики",
+			"attrs": "Свойства",
+			"stocks": "Остатки",
+			"prices": "Цены"
+		},
+		"pictureUpload": {
+			"title": "Загрузить новую картинку товара",
+			"caption": "Загрузить новую",
+			"success": "Файл картинки загружен"
+		},
+		"pictureDelete": {
+			"title": "Удалить текущую картинку товара",
+			"caption": "Удалить текущую",
+			"success": "Файл картинки удален",
+			"confirmation": "Удалить фото?"
+		},
+		"pictureMakeMain": {
+			"title": "Сделать текущую картинку товара основной",
+			"caption": "Сделать основной",
+			"success": "Файл картинки сделан основным"
+		},
+		"name": {
+			"label": "Наименование:",
+			"placeholder": "наименование товара",
+			"title": "Наименование товара"
+		},
+		"description": {
+			"label": "Описание:",
+			"placeholder": "Описание товара",
+			"title": "Описание товара"
+		},
+		"name_lat": {
+			"label": "Латинское наименование:",
+			"placeholder": "Латинское наименование товара",
+			"title": "Латинское наименование товара"
+		},
+		"name_full": {
+			"label": "Полное наименование:",
+			"placeholder": "полное наименование товара",
+			"title": "Полное наименование товара"
+		},
+		"code_1c": {
+			"label": "Код 1с:",
+			"placeholder": "код 1с",
+			"title": "Код товара в 1с"
+		},
+		"artikul": {
+			"label": "Артикул:",
+			"placeholder": "артикул товара",
+			"title": "Артикул товара"
+		},
+		"popularity": {
+			"label": "Популярность:",
+			"placeholder": "Популярность товара",
+			"title": "Популярность товара"
+		},
+		"specification": {
+			"label": "Спецификация:",
+			"placeholder": "Спецификация товара",
+			"title": "Спецификация товара"
+		},
+		"product_type": {
+			"label": "Тип товара:",
+			"placeholder": "Тип товара",
+			"title": "Тип товара"
+		},
+		"measureUnit": {
+			"label": "Единица измерения",
+			"name": {
+				"label": "Наименование:",
+				"title": "Наименование единицы",
+				"placeholder": "наименование единицы"
+			},
+			"name_full": {
+				"label": "Наименование полное:",
+				"title": "Полное наименование единицы",
+				"placeholder": "полн. наимен. единицы"
+			},
+			"name_short_intern": {
+				"label": "Наименование межд.:",
+				"title": "Меэдународное наименование единицы",
+				"placeholder": "межд. наимен. единицы"
+			},
+			"width": {
+				"label": "Ширина:",
+				"title": "Ширина",
+				"placeholder": "Ширина единицы"
+			},
+			"height": {
+				"label": "Высота:",
+				"title": "Высота",
+				"placeholder": "Высота единицы"
+			},
+			"depth": {
+				"label": "Глибина:",
+				"title": "глубина",
+				"placeholder": "глубина единицы"
+			}
+		},
+		"excisable": {
+			"label": "Подакцизный:",
+			"title": "Товар является подакцизным"
+		},
+		"use_marking": {
+			"label": "Маркировка:",
+			"title": "Товар подлежит маркировке"
+		},
+		"use_pack": {
+			"label": "Упаковка:",
+			"title": "Товар имеет упаковку"
+		},
+		"use_gtd": {
+			"label": "ГТД:",
+			"title": "Товар имеет ГТД"
+		}
+	},
+	"BrandEdit": {
+		"label": "Брэнд:",
+		"title": "Наименование брэнд",
+		"placeholder": "наименование брэнда"
+	},
+	"ProducerEdit": {
+		"label": "Производитель:",
+		"title": "Наименование производителя товара",
+		"placeholder": "наименование производителя"
+	},
+	"CountryEdit": {
+		"label": "Страна:",
+		"title": "Наименование страны-производителя товара",
+		"placeholder": "наименование страны"
+	},
+	"PriceGroupEdit": {
+		"label": "Ценовая группа:",
+		"title": "Наименование ценовой группы товара",
+		"placeholder": "наименование группы цен"
+	},
+	"ProductCertificateList": {
+		"columns": {
+			"status": "Статус",
+			"descr": "Описание",
+			"date_from": "Дата с",
+			"date_to": "Дата по",
+			"pictures": "Сканы"
+		},
+		"pictureTitle": "Сертификат. Нажмите для открытия ({SIZE}кб.)",
+		"noDataTitle": "Нет сертификатов"
+	},
+	"ProductCertificateUseRangeList": {
+		"title": "Список сертификатов",
+		"columns": {
+			"product_certificate_status": "Статус",
+			"product_certificates_ref": "Описание",
+			"product_certificate_date_from": "Дата с",
+			"product_certificate_pictures": "Сканы"
+		},
+		"pictureTitle": "Сертификат. Нажмите для открытия ({SIZE}кб.)",
+		"noDataTitle": "Нет сертификатов"
+	},
+	"AuthStore": {
+		"errLogin": "login failed: {ERROR}",
+		"errRegister": "registration: failed {ERROR}"
+	},
+	"UserRegister": {
+		"title": "Регистрация",
+		"submit": "Зарегистрироваться",
+		"name_full": {
+			"title": "Полное имя пользователя",
+			"label": "Пользователь:",
+			"placeholder": "ФИО пользователя"
+		},
+		"is_enterprise": {
+			"label": "Организация или частное лицо",
+			"person": "Частное лицо",
+			"enterprise": "Организация"
+		},
+		"errNoPassword": "Не задан пароль",
+		"errNoName": "Не задано имя пользователя",
+		"errTelNotVerified": "Телефон не подтвержден"
+	},
+	"SearchResult": {
+		"productTitle": "Товары",
+		"catTitle": "Категории",
+		"resultText": "Результат поиска для",
+		"resultProductCntText": "найдено товаров"
+	},
+	"LoginDeviceList": {
+		"title": "Устройства входа в систему",
+		"banQuery": "Заблокировать устройство?",
+		"unbanQuery": "Отменить блокировку устройств?",
+		"setBanOk": "Устройство заблокировано",
+		"unsetBanOk": "Отменена блокировка устройства",
+		"columns": {
+			"date_time_in": "Дата",
+			"user_agent": "Устройство",
+			"banned": "Заблокировано"
+		},
+		"noDataTitle": "Нет устройств"
+	},
+	"ProductCharList": {
+		"title": "Виды характеристик",
+		"columns": {
+			"title": "Наименование",
+			"enabled": "Доступен",
+			"visible": "Видимость"
+		},
+		"noDataTitle": "Нет видов характеристик"
+	},
+	"ProductCharDetail": {
+		"viewTitle": "Вид характеристики",
+		"title": {
+			"label": "Наименование:",
+			"placeholder": "наименование характеристики",
+			"title": "Наименование характеристики"
+		},
+		"prompt": {
+			"label": "Подсказка:",
+			"placeholder": "подсказка",
+			"title": "Подсказка для характеристики"
+		},
+		"comment_text": {
+			"label": "Комментарий:",
+			"placeholder": "Описание характеристики характеристики",
+			"title": "Описание характеристики характеристики"
+		},
+		"visible": {
+			"label": "Видимость:",
+			"title": "Видимость характеристики"
+		},
+		"value": {
+			"label": "Значение:"
+		}
+	},
+	"ProductCharValueList": {
+		"title": "Значения видов характеристик",
+		"columns": {
+			"value": "Значение"
+		}
+	},
+	"ProductList": {
+		"title": "Товары",
+		"columns": {
+			"name": "Наименование",
+			"code_1c": "Код 1с",
+			"artikul": "Артикул",
+			"preview_path": "Фото",
+			"product_cat_descrs": "Категории"
+		},
+		"noDataTitle": "Нет товаров"
+	},
+	"UserDetail": {
+		"title": "Карточка пользователя",
+		"tabs": {
+			"common": "Общие параметры",
+			"sessions": "Активность"
+		},
+		"name": {
+			"label": "ФИО:",
+			"placeholder": "ФИО",
+			"title": "ФИО пользователя"
+		},
+		"email": {
+			"label": "Email:",
+			"placeholder": "email",
+			"title": "Email пользователя"
+		},
+		"role_id": {
+			"label": "Роль:",
+			"title": "Роль пользователя"
+		},
+		"tel": {
+			"label": "Телефон:",
+			"placeholder": "Телефон",
+			"title": "Мобильный телефон пользователя"
+		}
+	},
+	"UserProfile": {
+		"title": "Профиль пользователя",
+		"name": {
+			"label": "ФИО:",
+			"placeholder": "ФИО",
+			"title": "ФИО пользователя"
+		},
+		"email": {
+			"label": "Email:",
+			"placeholder": "электронная почта",
+			"title": "Адрес электронной почты пользователя",
+			"confirmed": "Адрес электронной почты подтвержден"
+		},
+		"tel": {
+			"label": "Телефон:",
+			"placeholder": "Телефон",
+			"title": "Мобильный телефон пользователя",
+			"confirmed": "Мобильный телефон подтвержден"
+		}
+	},
+	"LoginDeviceBanBtn": {
+		"title": "Заблокировать/Разблокировать устройство входа в систему"
+	},
+	"NotifTemplateList": {
+		"title": "Шаблоны сообщений",
+		"columns": {
+			"notif_provider": "Провайдер",
+			"notif_type": "Тип",
+			"template": "Шаблон"
+		},
+		"noDataTitle": "Нет шаблоонов"
+	},
+	"NotifTemplateDetail": {
+		"title": "Карточка шаблона",
+		"notif_provider": {
+			"label": "Провайдер",
+			"placeholder": "Провайдер"
+		},
+		"notif_type": {
+			"label": "Тип",
+			"placeholder": "Тип"
+		},
+		"template": {
+			"label": "Шаблон",
+			"placeholder": "Шаблон"
+		},
+		"providerValues": {
+			"title": "Поля для провайдера",
+			"columns": {
+				"id": "Идентификатор",
+				"val": "Значение"
+			}
+		},
+		"fields": {
+			"title": "Поля",
+			"columns": {
+				"id": "Идентификатор"
+			}
+		},
+		"comment_text": {
+			"label": "Описание",
+			"placeholder": "Описание шаблона"
+		}
+	},
+	"UserEmail": {
+		"confirmed": "Адрес электронной почты подтвержден",
+		"confirm": "Подтвердить адрес электронной почты",
+		"confirmSent": "Отправлено письмо со ссылкой для подтверждения",
+		"errNotValid": "Неверный адрес электронной почты",
+		"errSending": "Ошибка регистрации исходящей почты",
+		"email": {
+			"label": "Email:",
+			"placeholder": "электронная почта",
+			"title": "Адрес электронной почты пользователя"
+		}
+	},
+	"UserTel": {
+		"errTelNotSet": "Не заполнен телефон",
+		"errCodeNotSet": "Не заполнен код",
+		"errTelIncorrect": "Неверное знавчение номера телефона",
+		"errCodeIncorrect": "Неверный код подтверждения",
+		"telConfirmed": "Телефон подтвержден"
+	},
+	"UserPassword": {
+		"requirements": "Пароль должен сожержать буквы латинсокого алфавита и как минимкм одну цифру. Минимальная длина 6 символов.",
+		"pwd": {
+			"label": "Пароль:",
+			"title": "Пароль для входа через эл.почту пользователя"
+		},
+		"pwd_conf": {
+			"label": "Подтверждение пароля:",
+			"title": "Повторный ввод пароля"
+		},
+		"update": "Изменить",
+		"notifUpdated": "Пароль изменен",
+		"notifError": "Ошибка при изменении пароля",
+		"noMatch": "Пароли не совпадают",
+		"match": "Пароли совпадают",
+		"tooWeak": "Пароль слишком простой"
+	},
+	"ConstEmail": {
+		"title": "Электронная почта для отправки писем",
+		"from_addr": {
+			"label": "Адрес отправителя:",
+			"title": "Адрес отправителя",
+			"placeholder": "адрес отправителя"
+		},
+		"from_name": {
+			"label": "Имя отправителя:",
+			"title": "Имя отправителя писем",
+			"placeholder": "имя отправителя"
+		},
+		"reply_name": {
+			"label": "Имя для ответов:",
+			"title": "Имя для ответных писем. Может совпадать с именем отправителя",
+			"placeholder": "имя для ответов"
+		},
+		"smtp_host": {
+			"label": "Хост SMTP:",
+			"title": "Хост SMTP в виде ИМЯ_ХОСТА:НОМЕР_ПОРТА, например, для mail.ru smtp.mail.ru:465",
+			"placeholder": "хост:порт"
+		},
+		"pwd": {
+			"label": "Пароль:",
+			"title": "Пароль для доступа к почте"
+		},
+		"check_interval_ms": {
+			"label": "Интервал отправки писем (мс):",
+			"title": "С заданным интервалом сервер будет отправлять новые письма. Устанавливается в миллисекундах."
+		}
+	},
+	"ClientDetail": {
+		"title": "Карточка организации",
+		"kpp": {
+			"label": "КПП:",
+			"placeholder": "КПП",
+			"title": "КПП организации"
+		},
+		"ogrn": {
+			"label": "ОГРН:",
+			"placeholder": "ОГРН",
+			"title": "ОГРН, ОГРНИП"
+		},
+		"okved": {
+			"label": "ОКВЭД:",
+			"placeholder": "ОКВЭД",
+			"title": "Код ОКВЭД организации"
+		},
+		"okpo": {
+			"label": "ОКПО:",
+			"title": "Код ОКПО организации"
+		},
+		"tels": {
+			"label": "Телефоны:",
+			"placeholder": "Телефоны",
+			"title": "Список телефонов организации, предпренимателя"
+		},
+		"emails": {
+			"label": "Эл.почта:",
+			"placeholder": "Электронная почта",
+			"title": "Список адресов электронной почты организации, предпренимателя"
+		},
+		"name": {
+			"label": "Наименование:",
+			"placeholder": "Наименование",
+			"title": "Наименование организации, ФИО предпренимателя"
+		},
+		"name_full": {
+			"label": "Полное наименование:",
+			"placeholder": "Полное наименование",
+			"title": "Официальное наименование организации"
+		},
+		"boss_name": {
+			"label": "ФИО руководителя:",
+			"placeholder": "Фамилия Имя Отчество",
+			"title": "Фамилия Имя Отчество руководителя для договора"
+		},
+		"boss_post": {
+			"label": "Должность руководителя:",
+			"placeholder": "Должность",
+			"title": "Должность руководителя для договора"
+		},
+		"address_legal": {
+			"label": "Юридический адрес:",
+			"placeholder": "Юридический адрес",
+			"title": "Юридический адрес организации, предпренимателя"
+		},
+		"address_fact": {
+			"label": "Фактический адрес:",
+			"placeholder": "Фактический адрес",
+			"title": "Фактический адрес организации, предпренимателя"
+		},
+		"inn": {
+			"label": "ИНН:",
+			"placeholder": "ИНН",
+			"title": "ИНН организации, ФИО предпренимателя"
+		}
+	},
+	"ClientInn": {
+		"label": "ИНН:",
+		"placeholder": "ИНН",
+		"title": "ИНН организации, предпренимателя",
+		"searchTitle": "Найти организацию по ИНН",
+		"errIncorrectLen": "Должно быть {len} символов"
+	},
+	"NotifApp": {
+		"title": "Настройки сообщений",
+		"tmParams": {
+			"title": "Telegram",
+			"token": {
+				"label": "Токен приложения:",
+				"title": "Токен приложения, выданный Telegram",
+				"placeholder": "токен Telegram"
+			}
+		},
+		"smsParams": {
+			"title": "SMS",
+			"login": {
+				"label": "Логин smsfeedback:",
+				"title": "Логин от smsfeedback",
+				"placeholder": "логин smsfeedback"
+			},
+			"pwd": {
+				"label": "Пароль smsfeedback:",
+				"title": "Пароль от smsfeedback",
+				"placeholder": "Пароль smsfeedback"
+			},
+			"sign": {
+				"label": "Подпись smsfeedback:",
+				"title": "Подпись для smsfeedback",
+				"placeholder": "Подпись для smsfeedback"
+			},
+			"active": {
+				"label": "Включен:",
+				"title": "Включен smsfeedback"
+			}
+		},
+		"emailParams": {
+			"title": "Email",
+			"host": {
+				"label": "Host:",
+				"title": "Email host: hots:port",
+				"placeholder": "host"
+			},
+			"user": {
+				"label": "User:",
+				"title": "Email user: xxx@domain.nn",
+				"placeholder": "user"
+			},
+			"pwd": {
+				"label": "Пароль:",
+				"title": "Пароль",
+				"placeholder": "Пароль"
+			}
+		},
+		"name": {
+			"label": "Наименование:",
+			"placeholder": "наименование приложения",
+			"title": "Наименование приложения"
+		},
+		"callback_url": {
+			"label": "Обратный вызов:",
+			"title": "URL для обратного вызова",
+			"placeholder": "URL"
+		},
+		"callback_key": {
+			"label": "Ключ обратного вызова:",
+			"title": "Уникальный ключ обратного вызова",
+			"placeholder": "уникальный ключ"
+		},
+		"pwd": {
+			"label": "Пароль:",
+			"title": "Пароль",
+			"placeholder": ""
+		}
+	},
+	"NotifOutMessageList": {
+		"title": "Исходящие сообщения",
+		"columns": {
+			"created_at": "Создано",
+			"providers": "Провайдеры",
+			"message": "Сообщение",
+			"status": "Статус",
+			"closed": "Закрыто"
+		},
+		"noDataTitle": "Нет сообщений"
+	},
+	"ProductAttrVals": {
+		"title": "Свойства"
+	},
+	"ProductCharDetails": {
+		"title": "Характеристики",
+		"columns": {
+			"char_name": {
+				"label": "Наименование",
+				"title": "Наименование характеристики"
+			},
+			"quant": {
+				"label": "Остаток",
+				"title": "Количество остатка по характеристике"
+			},
+			"price": {
+				"label": "Цена",
+				"title": "Цена за единицу по характеристике"
+			}
+		}
+	},
+	"RepProduct": {
+		"title": "Отчет по товарам"
+	},
+	"RepClient": {
+		"title": "Отчет по клиентам"
+	},
+	"FormProductExpImp": {
+		"title": "Импорт и экспорт excel"
+	},
+	"FormCatFilterConstructor": {
+		"title": "Конструктор фильтров"
+	},
+	"FormCatConstructor": {
+		"title": "Конструктор категорий"
+	},
+	"DelivRFPost": {
+		"title": "Модуль Почта России"
+	},
+	"DelivSDEK": {
+		"title": "Модуль СДЭК"
+	},
+	"DelivSelf": {
+		"title": "Своя доставка"
+	},
+	"FormSupplierAPI": {
+		"title": "API"
+	},
+	"FormWarehouse": {
+		"title": "Сборка склад"
+	},
+	"ClientList": {
+		"title": "Покупатели",
+		"columns": {
+			"name": "Наименование",
+			"name_full": "Полное наименование",
+			"inn": "ИНН",
+			"ogrn": "ОГРН"
+		},
+		"noDataTitle": "Нет клиентов"
+	},
+	"SupplierList": {
+		"title": "Поставщики",
+		"columns": {
+			"name": "Наименование",
+			"name_full": "Полное наименование",
+			"inn": "ИНН",
+			"ogrn": "ОГРН"
+		},
+		"noDataTitle": "Нет поставщиков"
+	},
+	"SupplierDetail": {
+		"title": "Карточка поставщика",
+		"kpp": {
+			"label": "КПП:",
+			"placeholder": "КПП",
+			"title": "КПП организации"
+		},
+		"ogrn": {
+			"label": "ОГРН:",
+			"placeholder": "ОГРН",
+			"title": "ОГРН, ОГРНИП"
+		},
+		"okved": {
+			"label": "ОКВЭД:",
+			"placeholder": "ОКВЭД",
+			"title": "Код ОКВЭД организации"
+		},
+		"okpo": {
+			"label": "ОКПО:",
+			"title": "Код ОКПО организации"
+		},
+		"tels": {
+			"label": "Телефоны:",
+			"placeholder": "Телефоны",
+			"title": "Список телефонов организации, предпренимателя"
+		},
+		"emails": {
+			"label": "Эл.почта:",
+			"placeholder": "Электронная почта",
+			"title": "Список адресов электронной почты организации, предпренимателя"
+		},
+		"inn": {
+			"label": "ИНН:",
+			"placeholder": "ИНН",
+			"title": "ИНН организации, ФИО предпренимателя"
+		},
+		"name": {
+			"label": "Наименование:",
+			"placeholder": "Наименование",
+			"title": "Наименование организации, ФИО предпренимателя"
+		},
+		"name_full": {
+			"label": "Полное наименование:",
+			"placeholder": "Полное наименование",
+			"title": "Официальное наименование организации"
+		},
+		"boss_name": {
+			"label": "ФИО руководителя:",
+			"placeholder": "Фамилия Имя Отчество",
+			"title": "Фамилия Имя Отчество руководителя для договора"
+		},
+		"boss_post": {
+			"label": "Должность руководителя:",
+			"placeholder": "Должность",
+			"title": "Должность руководителя для договора"
+		},
+		"address_legal": {
+			"label": "Юридический адрес:",
+			"placeholder": "Юридический адрес",
+			"title": "Юридический адрес организации, предпренимателя"
+		},
+		"address_fact": {
+			"label": "Фактический адрес:",
+			"placeholder": "Фактический адрес",
+			"title": "Фактический адрес организации, предпренимателя"
+		}
+	},
+	"ConfirmationStatusList": {
+		"title": "Коды проверки",
+		"columns": {
+			"ref": "Объект проверки",
+			"field": "Поле",
+			"secret": "Код",
+			"tries": "Попытки",
+			"try_date_time": "Дата попытки",
+			"date_time": "Дата создания"
+		}
+	},
+	"PromCodeList": {
+		"title": "Промокоды",
+		"columns": {
+			"name": "Наименование",
+			"comment_text": "Описание",
+			"created_at": "Дата создания",
+			"update_at": "Дата изменения",
+			"expir_at": "Дата окончания"
+		},
+		"noDataTitle": "Нет промокодов"
+	},
+	"PromCodeDetail": {
+		"title": "Промокод",
+		"name": {
+			"label": "Наименоваение:",
+			"placeholder": "Наименование"
+		},
+		"comment_text": {
+			"label": "Комментарий:",
+			"placeholder": "Комментарий"
+		}
+	},
+	"PromActionList": {
+		"title": "Акции",
+		"columns": {
+			"name": "Наименование",
+			"comment_text": "Описание",
+			"created_at": "Дата создания",
+			"update_at": "Дата изменения",
+			"expir_at": "Дата окончания"
+		},
+		"noDataTitle": "Нет акций"
+	},
+	"PromActionDetail": {
+		"title": "Акция",
+		"name": {
+			"label": "Наименоваение:",
+			"placeholder": "Наименование"
+		},
+		"comment_text": {
+			"label": "Комментарий:",
+			"placeholder": "Комментарий"
+		}
+	},
+	"PromPointList": {
+		"title": "Баллы",
+		"columns": {
+			"name": "Наименование",
+			"comment_text": "Описание",
+			"created_at": "Дата создания",
+			"update_at": "Дата изменения",
+			"expir_at": "Дата окончания"
+		},
+		"noDataTitle": "Нет баллов"
+	},
+	"FormPaySystems": {
+		"title": "Платежные системы"
+	},
+	"FormExchange1c": {
+		"title": "Модуль 1с"
+	},
+	"FormAPI": {
+		"title": "API поставщиков"
+	},
+	"FormCatFilterConsructor": {
+		"title": "Конструктор фильтров"
+	},
+	"ProductCatEdit": {
+		"label": "Категория:",
+		"title": "Наименование категории",
+		"placeholder": "наименование категории"
+	},
+	"ProductCatFilterList": {
+		"title": "Фильтры",
+		"columns": {
+			"name": "Наименование",
+			"values": "Значения"
+		},
+		"noDataTitle": "Нет фильтров"
+	},
+	"ProductCatFilterDetail": {
+		"title": "Фильтр",
+		"name": {
+			"label": "Наименование:",
+			"title": "Наименование фильтра",
+			"placeholder": "наименование фильтра"
+		},
+		"values": {
+			"title": "Значения",
+			"columns": {
+				"name": "Наименование",
+				"value": "Значение"
+			}
+		}
+	},
+	"CheckoutOrderList": {
+		"title": "Заказы",
+		"columns": {
+			"user": "Аккаунт",
+			"create_at": "Дата",
+			"last_status": "Статус"
+		},
+		"noDataTitle": "Нет заказов"
+	},
+	"ProductLinkList": {
+		"productCatTitle": "Категории",
+		"productTitle": "Номенклатура",
+		"columns": {
+			"products_ref": "Номенклатура",
+			"product_cats_ref": "Категории",
+			"updated_at": "Обновлено"
+		},
+		"noDataTitle": "Нет категорий"
+	},
+	"ProductEdit": {
+		"label": "Номенклатура:",
+		"title": "Номенклатура",
+		"placeholder": "наименование номенклатуры"
+	},
+	"ProductCatSetProduct": {
+		"title": "Категории"
+	},
+	"Account": {
+		"profile": "Профиль",
+		"exit": "Выход" 
+	},
+	"VerifCodeList": {
+		"title": "Верификации входа",
+		"columns": {
+			"tel": "Телефон",
+			"secret": "Телефон",
+			"tries": "Попытки",
+			"try_date_time": "дата попытки",
+			"date_time": "Дата"
+		},
+		"noDataTitle": "Нет записей"
+	},
+	"ProductCardAdmin": {
+		"btnSave": {
+			"caption": "Сохранить"
+		},
+		"btnCancel": {
+			"caption": "Отмена"
+		},
+		"noName": "Добавьте описание"
+	},
+	"ProductNoPictData": {
+		"text1": "Фотографий пока нет",
+		"text2": "Добавьте их в разделе «Фотографии»"
+	},
+	"ButtonAdd": {
+		"caption": "Добавить"
+	}
+}

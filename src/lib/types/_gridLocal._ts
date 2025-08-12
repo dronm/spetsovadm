@@ -1,0 +1,32 @@
+import type { TypeFormatter } from "./dataTypes.ts";
+import type {
+	GridPaginationProps,
+	GridCommand,
+	GridCol,
+	GridCurrentSorting,
+	GridEditForm,
+} from "./grid";
+import { GridEditMode, GridInlineInsertPlace } from "./grid";
+
+//properties
+//
+export interface GridLocalProps {
+	editable?: boolean;
+	editMode?: GridEditMode;
+	showHeader?: boolean;
+	forSelect?: boolean; //opened for making selection of a row (cell)
+	multySelect?: boolean; //multyrow selection
+	rowSelect?: boolean; //row selection otherwise cell
+	navigateMouse?: boolean; //mouse enabled for navigation
+	navigateKeyboard?: boolean;
+	mousePopup?: any; //context popup menu
+	title?: string; //grid title
+	commands?: GridCommand[]; //commands GridCmdVue component
+	columns: GridCol[][];
+	sort?: GridCurrentSorting;
+	inlineInsertPlace?: GridInlineInsertPlace;
+	typeFormatter: TypeFormatter;
+	editForm?: GridEditForm;
+	refreshInterval?: number;
+	pagination?: GridPaginationProps;
+}

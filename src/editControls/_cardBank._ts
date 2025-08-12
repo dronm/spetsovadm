@@ -1,0 +1,47 @@
+import { type EditAutocomplete } from '../lib/types/editAutocomplete';
+import EditRef from '../lib/components/EditRef.vue';
+import {
+	FilterOperatorParam,
+	type CollectionParams,
+} from '../lib/types/collection';
+
+import { cardBankList } from '../services/cardBankService';
+import { BtnSelectType } from '../lib/types/btnSelect';
+import { BtnAddType } from '../lib/types/btnAdd';
+
+export const cardBankEditControls = {
+	card_banks_ref: {
+		comp: EditRef,
+		compProps: {
+			keys: ['id'],
+			actAdd: {
+				addType: BtnAddType.inline,
+			},
+			actSelect: {
+				selectType: BtnSelectType.view,
+				selectProps: {
+					winProps: { width: 500, height: 400 },
+					routeName: 'cardBankList',
+				},
+			},
+			autocomplete: <EditAutocomplete>{
+				descrFields: ['name'],
+				apiCall: cardBankList,
+				apiCallParams: function (search: string): CollectionParams {
+					return {
+						filter: [
+							{
+								f: {
+									name: {
+										o: FilterOperatorParam.ILK,
+										v: encodeURIComponent(`%${search}%`),
+									},
+								},
+							},
+						],
+					};
+				},
+			},
+		},
+	},
+};

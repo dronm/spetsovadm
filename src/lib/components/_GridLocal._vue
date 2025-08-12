@@ -1,0 +1,264 @@
+<template>
+	<Grid
+		v-model="currentCell"
+		:editable="editable"
+		:editMode="editMode"
+		:showHeader="showHeader"
+		:forSelect="forSelect"
+		:multySelect="multySelect"
+		:rowSelect="rowSelect"
+		:navigateMouse="navigateMouse"
+		:navigateKeyboard="navigateKeyboard"
+		:mousePopup="mousePopup"
+		:title="title"
+		:commands="commands"
+		:columns="columns"
+		:sort="sort"
+		:inlineInsertPlace="inlineInsertPlace"
+		:typeFormatter="typeFormatter"
+		:editForm="editForm"
+		:refreshInterval="refreshInterval"
+		:data="displayedData"
+		:editRow="editRow"
+		@sort="onSort"
+		@print="onPrint"
+		@select="onSelect"
+		@custom="onCustomEvent"
+		@edit_insert="onEditInsert"
+		@edit_update="onEditUpdate"
+		@edit_copy="onEditCopy"
+		@insert="onInsert"
+		@update="onUpdate"
+		@delete="onDelete"
+		@cancel="onCancel"
+	>
+	</Grid>
+
+	<template v-if="pagination && displayedData && displayedData.length">
+		<GridPagination
+			:totalRows="
+				displayedData && displayedData.length ? displayedData.length : 0
+			"
+			:showPages="pagShowPages"
+			:rowsPerPage="pagRowsPerPage"
+			@page-changed="onPageChanged"
+		>
+		</GridPagination>
+	</template>
+
+	<Confirmation
+		v-model="confirmationShow"
+		:txt="confirmationText"
+		@confirm="onConfirmed"
+		@reject="onRejected"
+	>
+	</Confirmation>
+</template>
+
+<script setup lang="ts">
+import { ref, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+import Grid from "./Grid.vue";
+import GridPagination from "./GridPagination.vue";
+import {
+	GridEditMode,
+	GridInlineInsertPlace,
+	type GridCurrentCell,
+	type GridRow,
+	type GridData,
+	type GridCol,
+	type GridCurrentSorting,
+	type GridCommandResolve,
+} from "../types/grid";
+import Confirmation from "./Confirmation.vue";
+import { type GridLocalProps } from "../types/gridLocal";
+import { useLocalDelete, useLocalInsert, useLocalSort } from "../utils/useGrid";
+import { useGridColumnList, isEditRowModified, useLocalUpdate } from "../utils/useGrid";
+
+const DEF_ROWS_PER_PAGE = 30;
+const DEF_SHOW_PAGES = 0;
+
+const {
+	editable = true,
+	editMode = GridEditMode.inline,
+	showHeader = true,
+	forSelect = false,
+	multySelect = false,
+	rowSelect = false,
+	navigateMouse = true,
+	navigateKeyboard = true,
+	mousePopup,
+	title,
+	commands,
+	columns,
+	sort,
+	inlineInsertPlace = GridInlineInsertPlace.first,
+	typeFormatter,
+	editForm,
+	refreshInterval = 0,
+	pagination,
+} = defineProps<GridLocalProps>();
+
+const emit = defineEmits<{
+	select: [];
+	custom: [cmd: string];
+}>();
+
+// const grid = useTemplateRef("gridNode");
+
+const { t } = useI18n();
+
+const data = defineModel<GridData | undefined>();
+
+const currentCell = ref<GridCurrentCell | undefined>(data.value ? { row: 0, col: 0 } : undefined);
+const editRow = ref<GridRow | undefined>(undefined);
+
+//pagination values can be altered at runtime
+const pagFromRow = ref<number>(0);
+const pagRowsPerPage = ref<number>(pagination ? pagination.rowsPerPage : DEF_ROWS_PER_PAGE);
+const pagShowPages = ref<number>(pagination ? pagination.showPages : DEF_SHOW_PAGES);
+
+const confirmationShow = ref(false);
+let onConfirmed = undefined;
+let onRejected = undefined;
+let confirmationText = "";
+
+const displayedData = computed(() => {
+	if (!data.value || !pagination) {
+		return data.value;
+	}
+	return data.value.slice(pagFromRow.value, pagFromRow.value + pagRowsPerPage.value);
+});
+
+const columnList = computed(() => useGridColumnList(columns));
+
+watch(
+	() => data.value,
+	() => {
+		if (data.value && data.value.length && currentCell.value === undefined) {
+			currentCell.value = { row: 0, col: 0 };
+		}
+	},
+	{ immediate: true },
+);
+
+const onSort = (sort: GridCurrentSorting) => {
+	if (!displayedData.value) {
+		return;
+	}
+	useLocalSort(displayedData.value, sort.col, sort.order);
+};
+
+const onPageChanged = (currentPage: number) => {
+	pagFromRow.value = (currentPage - 1) * pagRowsPerPage.value;
+};
+
+const onPrint = () => {
+	console.log("onPrint");
+};
+
+const onSelect = () => {
+	emit("select");
+};
+
+const onCustomEvent = (cmd: string) => {
+	emit("custom", cmd);
+};
+
+//set edit mode
+const onEditInsert = () => {
+	editRow.value = {};
+	columnList.value.forEach((col: GridCol) => {
+		if (col.field && editRow.value) {
+			editRow.value[col.field] = col.defaultValue;
+		}
+	});
+};
+
+//set update mode
+const onEditUpdate = () => {
+	if (!currentCell.value || !displayedData.value) {
+		return;
+	}
+	editRow.value = Object.create(displayedData.value[currentCell.value.row]);
+};
+
+//set copy mode
+const onEditCopy = () => {
+	if (!currentCell.value || !displayedData.value) {
+		return;
+	}
+	//copy mode: clone current row + defaults
+	editRow.value = Object.create(displayedData.value[currentCell.value.row]);
+	columnList.value.forEach((col: GridCol) => {
+		if (col.field && editRow.value && editRow.value[col.field] === undefined) {
+			editRow.value[col.field] = col.defaultValue;
+		}
+	});
+};
+
+//submit update
+const onUpdate = (editData: GridColData, resolve: GridCommandResolve) => {
+	// if(!currentCell.value || !data.value || !editRow.value){
+	// 	return;
+	// }
+	// const rowIndex = pagFromRow.value + currentCell.value.row;
+	// useLocalUpdate(data, editRow.value, rowIndex);
+	resolve("");
+};
+
+//submit insert
+const onInsert = (editData: GridColData, resolve: GridCommandResolve) => {
+	if (!editRow.value) {
+		return;
+	}
+	// useLocalInsert(data.value, editData);?? check
+	resolve("");
+};
+
+//submit delete
+const onDeleteCont = (resolve: GridCommandResolve) => {
+	if (!currentCell.value || !data.value) {
+		return;
+	}
+	const rowIndex = pagFromRow.value + currentCell.value.row;
+	useLocalDelete(data, rowIndex);
+	resolve("");
+};
+
+const onDelete = (resolve: GridCommandResolve) => {
+	onConfirmed = function () {
+		onDeleteCont(resolve);
+	};
+	onRejected = function () {
+		resolve("continue");
+	};
+	confirmationText = t("Grid.deleteConfirmation");
+	confirmationShow.value = true;
+};
+
+//cancel operation: insert/edit
+const onCancel = (editData: GridColData, resolve: GridCommandResolve, isInsert: boolean) => {
+	let modified = false;
+	try {
+		modified = isEditRowModified(isInsert, editData, editRow.value);
+	} catch (e: unknown) {
+		const msg = e instanceof Error ? e.message : "unknown error";
+		resolve(msg);
+		return;
+	}
+	if (modified) {
+		onConfirmed = function () {
+			resolve("");
+		};
+		onRejected = function () {
+			resolve("continue");
+		};
+		confirmationText = t("Grid.cancelChanges");
+		confirmationShow.value = true;
+	} else {
+		resolve("");
+	}
+};
+</script>

@@ -1,0 +1,25 @@
+import { DataType } from '../lib/types/dataTypes';
+import { type DataField, type DataFields } from '../lib/types/dataField';
+import { ValidationConstraint } from '../lib/types/validation';
+
+export const employeeFields: DataFields = {
+	id: {
+		dataType: DataType.int,
+		pKey: true,
+		srvCalc: true,
+	},
+	name: {
+		dataType: DataType.text,
+		validRules: [
+			{ constraint: ValidationConstraint.maxLen, value: 255 },
+			{ constraint: ValidationConstraint.required },
+		],
+	},
+};
+
+export const employeeFieldsAssert = function (id: string): DataField {
+	if (!employeeFields[id]) {
+		throw new Error(`employeeFieldsAssert() failed for field: ${id}`);
+	}
+	return employeeFields[id];
+};

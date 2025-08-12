@@ -1,0 +1,46 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"],
+
+			//works this way
+			//"@lib/*": ["/home/andrey/www/includes/jsLib/src/*"],
+			"@lib/*": ["./src/lib/*"],
+
+			"vuebiz-ui/*": ["/home/andrey/www/includes/jsLib/src/*"]
+		},
+		"target": "ESNext",
+		"module": "esNext",
+		"lib": ["dom", "esnext", "es2021"],
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"types": ["reflect-metadata"]
+	},
+
+	"files": [],
+	//does not work this way, ./ import error
+	// "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+
+	//all works fine, even @/
+	"include": ["src/**/*", "types/**/*"],
+
+	"typeRoots": [],
+
+	//ai suggested this line, have not checked
+	//"include": ["src/**/*.vue", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.js"]
+
+	"references": [
+		{
+			"path": "./tsconfig.node.json"
+		},
+		{
+			"path": "./tsconfig.app.json"
+		},
+		{
+			"path": "./tsconfig.vitest.json"
+		}
+	]
+}

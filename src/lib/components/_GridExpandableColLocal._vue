@@ -1,0 +1,105 @@
+<template>
+	<div class="ml-4">
+		<div class="flex items-center gap-2 p-2">
+			<button
+				v-if="dataRow[childrenField] && (dataRow[childrenField] as Array<any>).length"
+				@click="collapsed = !collapsed"
+				class="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-700 cursor-pointer"
+			>
+				<span v-if="collapsed">➕</span>
+				<span v-else>➖</span>
+			</button>
+
+			<div class="flex-1 cursor-move">
+				{{ renderCellData(dataRow, column, typeFormatter)}}
+			</div>
+
+			<GridEditForm
+				ref="hierEditForm"
+				:typeFormatter="typeFormatter"
+				:columnList="[column]"
+				:row="dataRow"
+				:currentCol="0"
+				@submit="submitEdit"
+				@cancel="cancelEdit"
+			>
+			</GridEditForm>
+		</div>
+
+		<transition name="fade">
+			<Draggable
+				v-if="!collapsed"
+				v-model="dataRow[childrenField] as unknown[] | undefined"
+				group="tree"
+				item-key="id"
+				:move="onMove"
+				@change="emitUpdate"
+				class="space-y-2 mt-2"
+			>
+				<template #item="{ element }">
+					<GridExpandableColLocal 
+						:data-row="element" 
+						:type-formatter="typeFormatter"
+						:column="column"
+						:children-field="childrenField"
+						:keyFields="keyFields"
+						@update="emitUpdate" 
+					/>
+				</template>
+			</Draggable>
+		</transition>
+	</div>
+</template>
+
+<script setup lang="ts">
+
+import { defineProps, defineEmits, ref } from 'vue';
+import Draggable from 'vuedraggable';
+
+import type { TypeFormatter } from '../types/controlTypes';
+import type { FormData } from '../types/form';
+import type { GridCol } from '../types/grid';
+import GridExpandableColLocal from "./GridExpandableColLocal.vue";
+import { renderCellData } from '../utils/useGrid';
+
+const props = defineProps<{
+	typeFormatter: TypeFormatter;
+	column: GridCol;
+	dataRow: FormData;
+	childrenField: string;
+	keyFields: string[];
+}>();
+
+const emit = defineEmits<{
+	update: [newNode: FormData[]];
+}>();
+
+const collapsed = ref(true);
+
+function emitUpdate() {
+	emit('update');
+}
+
+function onMove(evt: any) {
+	return true; // Allow all moves; customize logic if needed
+}
+
+const submitEdit = () => {
+
+}
+const cancelEdit = () => {
+
+}
+
+</script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+</style>

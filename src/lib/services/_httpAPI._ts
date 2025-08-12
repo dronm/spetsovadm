@@ -1,0 +1,175 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2025 Andrey Mikhalevich
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ */
+
+import i18n from "@/i18n";
+
+//----- types -----
+export enum RequestMethods {
+	Get = "GET",
+	Post = "POST",
+	Put = "PUT",
+	Delete = "DELETE",
+}
+
+export interface ErrorModel {
+	message: string;
+	errorCode: string;
+}
+
+export enum RequestContentTypes {
+	TEXT = "text/html",
+	JSON = "application/json",
+	FORM = "multipart/form-data",
+	XML = "text/xml",
+	ARRAY_BUFFER = "arraybuffer",
+	BLOB = "blob",
+}
+
+export interface RequestHeaders {
+	[index: string]: any;
+}
+
+export interface RequestOptions {
+	headers?: RequestHeaders;
+	method: RequestMethods;
+	body?: any;
+}
+
+export interface HTTPResponse<T = any> {
+	body: T;
+	status: number;
+	headers: Headers;
+}
+
+//---- main ----
+// APIError is thrown is case of an error. It extends default Error class
+// with status and body fields.
+export class APIError extends Error {
+	status?: number;
+	body?: any;
+
+	constructor(message: string, status?: number, body?: any) {
+		super(message); // Call the parent constructor with the message
+		this.name = this.constructor.name; // Set the error name to the class name
+		this.status = status;
+		this.body = body;
+
+		// Set the prototype explicitly for inheritance to work correctly in TypeScript
+		Object.setPrototypeOf(this, new.target.prototype);
+	}
+}
+
+export async function fetchAPI(endpoint: string, options?: RequestOptions): Promise<HTTPResponse> {
+	// Default headers
+	// 'Content-Type': RequestContentTypes.JSON,
+	const defaultHeaders = {
+		Accept: "application/json",
+	};
+
+	if (!options) {
+		options = { method: RequestMethods.Get };
+	}
+
+	const config = {
+		...options,
+		headers: { ...defaultHeaders, ...options.headers },
+	};
+
+	// Parse and return JSON response
+	// TODO: handle different resonse types
+
+	try {
+		const response = await fetch(endpoint, config);
+
+		const contentType = response.headers.get("Content-Type");
+		const isJson = contentType && contentType.includes(RequestContentTypes.JSON);
+		// console.log("httpAPI got response")
+		const responseBody = isJson ? await response.json() : null;
+		// console.log("httpAPI response converted to json")
+
+		// Check for HTTP errors
+		if (!response.ok) {
+			let msg = "";
+			if (responseBody.error && (responseBody.error as string).length) {
+				msg = responseBody.error;
+			} else {
+				switch (response.status) {
+					case 404:
+						msg = i18n.global.t("httpErrors.status404");
+						break;
+					case 500:
+						msg = i18n.global.t("httpErrors.status500");
+						break;
+					case 401:
+						msg = i18n.global.t("httpErrors.status401");
+						break;
+					case 403:
+						msg = i18n.global.t("httpErrors.status403");
+						break;
+					default:
+						msg = i18n.global.t(
+							"httpErrors.any",
+							response.status,
+						);
+				}
+			}
+			throw new APIError(msg, response.status, responseBody);
+		}
+
+		return <HTTPResponse>{
+			body: responseBody,
+			status: response.status,
+			headers: response.headers,
+		};
+	} catch (error: any) {
+		let errorMessage = "";
+		if (error instanceof TypeError && error.message.includes("fetch")) {
+			errorMessage = i18n.global.t("httpErrors.unavailable");
+		} else if (error instanceof APIError) {
+			errorMessage = error.message;
+		}
+
+		throw new Error(errorMessage);
+	}
+}
+
+export function httpGet(endpoint: string, headers?: RequestHeaders) {
+	return fetchAPI(endpoint, {
+		method: RequestMethods.Get,
+		headers: { ...headers },
+	});
+}
+
+export function httpPost(endpoint: string, body: any, headers?: RequestHeaders) {
+	return fetchAPI(endpoint, {
+		method: RequestMethods.Post,
+		body: body,
+		headers: { ...headers },
+	});
+}
+
+export function httpPut(endpoint: string, body: any, headers?: RequestHeaders) {
+	return fetchAPI(endpoint, {
+		method: RequestMethods.Put,
+		body: JSON.stringify(body),
+		headers: { ...headers },
+	});
+}
+
+export function httpDel(endpoint: string, headers?: RequestHeaders) {
+	return fetchAPI(endpoint, {
+		method: RequestMethods.Delete,
+		headers: { ...headers },
+	});
+}

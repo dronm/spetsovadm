@@ -1,0 +1,96 @@
+import { type FormControl } from '../lib/types/form';
+import { employeeFields } from '../dataFields/employee';
+import { postEditControls } from '../editControls/post';
+import { departmentEditControls } from '../editControls/department';
+import { cardBankEditControls } from '../editControls/cardBank';
+import EmployeeExpirience from '../components/EmployeeExperience.vue';
+import { cardBankFields } from '@/dataFields/cardBank';
+import PostEdit from '@/components/PostEdit.vue';
+import DepartmentEdit from '@/components/DepartmentEdit.vue';
+import CardBankEdit from '@/components/CardBankEdit.vue';
+
+export const employeeDetailControlList: FormControl[] = [
+	// {
+	// 	id: "id",
+	// 	field: employeeFields.id,
+	// 	editControl: {
+	// 		compProps: {
+	// 			placeholder: "employee id"
+	// 		}
+	// 	}
+	// },
+	{
+		id: 'name',
+		field: employeeFields.name,
+		focus: true,
+		editControl: {
+			compProps: {
+				lable: 'ФИО:',
+				title: 'Фамилия ия отчество сотрудника',
+				placeholder: 'ФИО сотрудника',
+			},
+		},
+	},
+	{
+		id: 'alimony',
+		field: employeeFields.alimony,
+		editControl: {
+			compProps: {
+				lable: 'Алименты:',
+				title: 'Сотрудник платит алименты',
+			},
+		},
+	},
+	{
+		id: 'posts_ref',
+		field: employeeFields.posts_ref,
+		editControl: {
+			comp: PostEdit,
+		},
+		//postEditControls.posts_ref,
+	},
+	{
+		id: 'departments_ref',
+		field: employeeFields.departments_ref,
+		editControl: {
+			comp: DepartmentEdit,
+		},
+		//departmentEditControls.departments_ref,
+	},
+	{
+		id: 'experience',
+		field: employeeFields.experience,
+		editControl: {
+			comp: EmployeeExpirience,
+		},
+	},
+	{
+		id: 'qualification',
+		field: employeeFields.qualification,
+	},
+	{
+		id: 'driving_lic_cat',
+		field: employeeFields.driving_lic_cat,
+	},
+	{
+		id: 'staff',
+		field: employeeFields.staff,
+	},
+	{
+		id: 'card_banks_ref',
+		field: employeeFields.card_banks_ref,
+		editControl: {
+			comp: CardBankEdit,
+		},
+		//cardBankEditControls.card_banks_ref,
+	},
+	{
+		id: 'comment_text',
+		field: employeeFields.comment_text,
+		editControl: {
+			compProps: {
+				label: 'Комментарий:',
+			},
+		},
+	},
+];

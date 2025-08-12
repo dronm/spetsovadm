@@ -1,0 +1,1913 @@
+<template>
+	<div id="collection" class="collect-grid-container">
+		<div v-if="title" class="grid-title">{{ title }}</div>
+
+		<div id="collect-grid-cmd" class="container-cmd" v-if="gridCmdButtons">
+			<template v-for="cmd in gridCmdButtons" :key="cmd.id">
+				<component
+					:is="cmd.comp"
+					v-bind="cmd.compProps"
+					:get-current-cell="getCurrentCell"
+					@command="onCommand"
+				>
+				</component>
+			</template>
+		</div>
+
+
+		<div v-if="!isEditMode && !isInsertMode && editError" class="form-error">
+			{{ editError }}
+		</div>
+
+		<GridSearchPanel
+			v-if="searchResults && searchResults.length"
+			:result-list="searchResults"
+			@remove="removeSearchPanel"
+		>
+		</GridSearchPanel>
+
+		<slot name="noData" v-if="!isEditMode && !isInsertMode && !store.displayedData.value?.length" />
+
+		<transition name="fade">
+			<table class="grid-table" :tabindex="0" ref="gridTable" v-on="bindEvents" 
+				v-if="hasNoDataSlot && (isEditMode || isInsertMode || store.displayedData.value?.length)"
+			>
+				<!-- Render header -->
+				<thead v-if="showHeader">
+					<tr
+						v-for="(headerRow, rowIndex) in columns"
+						:key="`header-row-${rowIndex}`"
+						class="grid-table-headrow"
+					>
+						<th
+							v-for="col in headerRow.filter(
+								(c: GridCol) => c.visible !== false,
+							)"
+							:key="`header-cell-${col.id}`"
+							:rowspan="col.rowspan"
+							:colspan="col.colspan"
+							@click="toggleSort(col)"
+							:class="[
+								col.headClass || 'grid-header',
+								{
+									'grid-header-sorted':
+										store.currentSort
+											.value
+											?.col ===
+										col.id,
+									'cursor-pointer':
+										isColSortable(col),
+								},
+							]"
+							:title="
+								isColSortable(col)
+									? t('Grid.sortColTitle')
+									: ''
+							"
+						>
+							<template v-if="isColSortable(col)">
+								<!--
+								<font-awesome-icon
+									:icon="['fas', 'sort']"
+									class="mr-2"
+								/>
+								-->
+
+								{{ col.header || col.id }}
+
+								<font-awesome-icon
+									:icon="
+										store.columnSorting
+											.value &&
+										store.columnSorting
+											.value[
+											col.id
+										] ===
+											GridColSortOrder.asc
+											? [
+													'fas',
+													'arrow-down',
+												]
+											: [
+													'fas',
+													'arrow-up',
+												]
+									"
+									class="ml-2"
+								/>
+							</template>
+							<template v-else>
+								{{ col.header || col.id }}
+							</template>
+						</th>
+					</tr>
+				</thead>
+
+				<!-- Render body -->
+				<!--<Transition name="fade"> -->
+				<!--<tbody v-if="store.fetchLoading.value === false">-->
+				<tbody
+					v-if="
+						(processedGridData && processedGridData.length) ||
+						isInsertMode
+					"
+				>
+					<!-- pre insert row -->
+					<template
+						v-if="
+							isInsertMode &&
+							(edit as GridEdit)?.mode ===
+								GridEditMode.inline &&
+							inlineInsertPlace ===
+								GridInlineInsertPlace.first
+						"
+					>
+						<GridEditForm
+							ref="editFormPreInsertRef"
+							:typeFormatter="typeFormatter"
+							:columnList="store.columnList.value"
+							:row="store.editRow.value"
+							:currentCol="0"
+							:isNew="true"
+							:error="editError"
+							@submit="submitEdit"
+							@cancel="cancelEdit"
+						>
+						</GridEditForm>
+					</template>
+
+					<!-- row iterator -->
+					<template
+						v-for="(row, rowIndex) in processedGridData"
+						:key="row.rowUniquID"
+					>
+						<!-- edit row -->
+						<template
+							v-if="
+								isEditMode &&
+								(edit as GridEdit)?.mode ===
+									GridEditMode.inline &&
+								currentCell?.row === rowIndex
+							"
+						>
+							<GridEditForm
+								ref="editFormUpdateRef"
+								:typeFormatter="typeFormatter"
+								:columnList="store.columnList.value"
+								:currentCol="currentCell.col"
+								:row="store.editRow.value"
+								:isNew="false"
+								:error="editError"
+								@submit="submitEdit"
+								@cancel="cancelEdit"
+							>
+							</GridEditForm>
+						</template>
+
+						<!-- view row -->
+						<template v-else>
+							<tr
+								class="grid-table-row"
+								:class="{
+									'grid-selected-row':
+										isRowSelected(
+											rowIndex,
+										),
+									'grid-active-row':
+										rowIndex ===
+										currentCell?.row,
+									...customFormatRowClass(
+										store.displayedData
+											.value[
+											rowIndex
+										],
+									),
+								}"
+								@click="
+									toggleRowSelection(
+										rowIndex,
+										$event,
+									)
+								"
+								:draggable="draggable"
+								@dragstart="
+									onDragStart(
+										$event,
+										rowIndex,
+									)
+								"
+								@dragend="
+									onDragEnd($event, rowIndex)
+								"
+								@dragover.prevent
+								@drop="onDrop($event, rowIndex)"
+							>
+								<td
+									v-for="(
+										col, colIndex
+									) in visibleCols"
+									:key="col.id"
+									class="grid-cell"
+									:title="
+										t(
+											'Grid.rowEditTitle',
+										)
+									"
+									@click="
+										clickOnCell(
+											$event,
+											rowIndex,
+											colIndex,
+										)
+									"
+									@contextmenu="onContextMenu($event, rowIndex, colIndex)"
+									:class="{
+										'cursor-pointer': true,
+										'grid-cell-current':
+											isCurrentCell(
+												rowIndex,
+												colIndex,
+											),
+										'text-center':
+											(col.textAlign &&
+												col.textAlign ===
+													GridColTextAlign.center) ||
+											(!col.textAlign &&
+												(colControlType(
+													col,
+												) ===
+													ControlType.date ||
+													colControlType(
+														col,
+													) ===
+														ControlType.tel ||
+													colControlType(
+														col,
+													) ===
+														ControlType.check)),
+										'text-left':
+											col.textAlign &&
+											col.textAlign ===
+												GridColTextAlign.left,
+										'text-right':
+											(col.textAlign &&
+												col.textAlign ===
+													GridColTextAlign.right) ||
+											(!col.textAlign &&
+												(colControlType(
+													col,
+												) ===
+													ControlType.num ||
+													colControlType(
+														col,
+													) ===
+														ControlType.currency)),
+										...customFormatClass(
+											col,
+											store
+												.displayedData
+												.value[
+												rowIndex
+											],
+										),
+									}"
+								>
+									<!-- custom format control. Custom controls deal with expands by themselves. -->
+									<template
+										v-if="
+											col.formatControl
+										"
+									>
+										<Component
+											:is="
+												col
+													.formatControl
+													.comp
+											"
+											v-bind="
+												col
+													.formatControl
+													.compProps
+											"
+											:dataRow="
+												store
+													.displayedData
+													.value[
+													rowIndex
+												]
+											"
+											:rowIndex="
+												rowIndex
+											"
+										>
+										</Component>
+									</template>
+
+									<!-- row value as html -->
+									<template
+										v-else-if="
+											col.formatResultHtml ===
+											true
+										"
+									>
+										<span
+											v-html="
+												row[
+													col
+														.id
+												]
+											"
+										></span>
+									</template>
+
+									<!-- simple row value output --->
+									<template v-else>
+										<GridCmdExpandRow
+											v-if="
+												col.expand ===
+												true
+											"
+											:expanded="
+												expandedRows.has(
+													rowIndex,
+												)
+											"
+											@update:expanded="
+												(
+													val: boolean,
+												) =>
+													handleRowExpanded(
+														rowIndex,
+														val,
+													)
+											"
+										/>
+										{{ row[col.id] }}
+									</template>
+								</td>
+							</tr>
+							<!-- expand row -->
+							<transition name="fade">
+								<template
+									v-if="
+										expand &&
+										expandedRows.has(
+											rowIndex,
+										)
+									"
+								>
+									<tr>
+										<td
+											:colspan="
+												visibleCols.length
+											"
+										>
+											<Component
+												:is="
+													expand.comp
+												"
+												v-bind="
+													expand.compProps
+												"
+												@save-state="
+													saveCurrentState()
+												"
+												:parent-data="
+													store
+														.displayedData
+														.value[
+														rowIndex
+													]
+												"
+												:ref="
+													(
+														el: Ref,
+													) =>
+														(expandedRefs[
+															row.rowUniquID
+														] =
+															el)
+												"
+											>
+											</Component>
+										</td>
+									</tr>
+								</template>
+							</transition>
+						</template>
+					</template>
+
+					<!-- post insert row -->
+					<template
+						v-if="
+							isInsertMode &&
+							(edit as GridEdit)?.mode ===
+								GridEditMode.inline &&
+							inlineInsertPlace ===
+								GridInlineInsertPlace.last
+						"
+					>
+						<GridEditForm
+							ref="editFormPostInsertRef"
+							:typeFormatter="typeFormatter"
+							:columnList="store.columnList.value"
+							:currentCol="0"
+							:row="store.editRow.value"
+							:isNew="true"
+							:error="editError"
+							@submit="submitEdit"
+							@cancel="cancelEdit"
+						>
+						</GridEditForm>
+					</template>
+				</tbody>
+				<!--	</Transition> -->
+
+				<!-- Render footer -->
+				<tfoot v-if="footColumns">
+					<tr
+						v-for="(footRow, rowIndex) in footColumns"
+						:key="`foot-row-${rowIndex}`"
+						class="grid-table-footrow"
+					>
+						<th
+							v-for="col in footRow.filter(
+								(c: GridFootCol) => c.visible !== false,
+							)"
+							:key="`footer-cell-${col.id}`"
+							:rowspan="col.rowspan"
+							:colspan="col.colspan"
+							:class="{
+								[col.colClass || 'grid-footer']: true,
+								'text-center':
+									(col.textAlign &&
+										col.textAlign ===
+											GridColTextAlign.center) ||
+									(!col.textAlign &&
+										(colControlType(
+											col,
+										) ===
+											ControlType.date ||
+											colControlType(
+												col,
+											) ===
+												ControlType.tel ||
+											colControlType(
+												col,
+											) ===
+												ControlType.check)),
+								'text-left':
+									col.textAlign &&
+									col.textAlign ===
+										GridColTextAlign.left,
+								'text-right':
+									(col.textAlign &&
+										col.textAlign ===
+											GridColTextAlign.right) ||
+									(!col.textAlign &&
+										(colControlType(
+											col,
+										) ===
+											ControlType.num ||
+											colControlType(
+												col,
+											) ===
+												ControlType.currency))
+							}"
+						>
+							<!-- static value -->
+							<template
+								v-if="col.value"
+							>
+								{{ col.value }}
+							</template>
+
+							<!-- custom component -->
+							<template
+								v-if="col.formatControl"
+							>
+								<Component
+									:is="
+										col
+											.formatControl
+											.comp
+									"
+									v-bind="
+										col
+											.formatControl
+											.compProps
+									"
+									:aggData="
+										store.aggData.value
+										?store.aggData.value
+										:{}
+									"
+								>
+								</Component>
+							</template>
+
+							<!-- row value as html -->
+							<template
+								v-else-if="
+									col.formatResultHtml ===
+									true
+								"
+							>
+								<span
+									v-html="store.aggData.value? store.aggData.value[col.id] : undefined"
+								></span>
+							</template>
+
+							<!-- row value with render function -->
+							<template
+								v-else-if="store.aggData.value"
+							>
+								{{ renderCellData(store.aggData.value, col, typeFormatter) }}
+							</template>
+						</th>
+					</tr>
+				</tfoot>
+			</table>
+		</transition>
+
+		<template
+			v-if="
+				store.rowsPerPage.value &&
+				store.displayedData.value &&
+				store.displayedData.value.length
+			"
+		>
+			<GridPagination
+				:currentPage="store.currentPage.value"
+				:totalRows="store.rowCount.value"
+				:showPages="showPages"
+				:rowsPerPage="store.rowsPerPage.value"
+				@page-changed="changePage"
+			>
+			</GridPagination>
+		</template>
+	</div>
+
+	<Confirmation
+		v-model="confirmation.show"
+		:txt="confirmation.text"
+		@confirm="confirmation.confirmed"
+		@reject="confirmation.rejected"
+	>
+	</Confirmation>
+
+	<Popover
+		v-model:isOpen="contextMenuOpen"
+		:items="mousePopup"
+		:position="contextMenuPosition"
+		@selected="contextMenuItemSelected"
+	>
+	</Popover>
+
+	<!--<Teleport to="body"> -->
+	<modal
+		v-if="showModalEdit"
+		v-bind="(edit as GridEdit)?.form?.modalProps"
+		@close="cancelEdit"
+	>
+		<template #body>
+			<template v-if="(edit as GridEdit)?.form">
+				<component
+					:is="(edit as GridEdit)?.form?.comp"
+					:data="store.editRow.value"
+					v-bind="(edit as GridEdit)?.form?.compProps"
+					:error="editError"
+					:currentId="
+						currentCell
+							? formControlList[currentCell.col].id
+							: undefined
+					"
+					:isNew="isInsertMode"
+					@close="closeModal"
+				>
+				</component>
+			</template>
+			<template v-else>
+				<Form
+					:controlList="formControlList"
+					:data="store.editRow.value"
+					:error="editError"
+					:currentId="
+						currentCell
+							? formControlList[currentCell.col].id
+							: undefined
+					"
+					:isNew="isInsertMode"
+					@submit="submitEdit"
+					@save="saveEdit"
+					@cancel="cancelEdit"
+				>
+				</Form>
+			</template>
+		</template>
+	</modal>
+	<!--</Teleport> -->
+
+	<modal v-if="showModalSearch" @close="showModalSearch = false">
+		<template #body>
+			<GridSearch
+				:columns="columns"
+				:column-index="currentCell?.col"
+				:init-search="initSearch"
+				@cancel="cancelSearch"
+				@search="applySearch"
+			>
+			</GridSearch>
+		</template>
+	</modal>
+</template>
+
+<script setup lang="ts">
+import {
+	type Ref,
+	ref,
+	toRaw,
+	watch,
+	reactive,
+	useTemplateRef,
+	nextTick,
+	computed,
+	onMounted,
+	onUnmounted,
+	useSlots
+} from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter, useRoute } from "vue-router";
+
+//command function prototypes
+import {
+	type GridCol,
+	type GridProps,
+	type GridCurrentCell,
+	type GridCommand,
+	type GridEdit,
+	GridInlineInsertPlace,
+	GridColTextAlign,
+	GridEditMode,
+	GridColSortOrder,
+	type GridRowDrag,
+type GridFootCol,
+} from "../types/grid";
+
+import { renderCellData, useFormControlList, colControlType } from "../utils/useGrid";
+
+import Modal from "./Modal.vue";
+import Confirmation from "./Confirmation.vue";
+import Popover from "./Popover.vue";
+import { type PopoverPosition, type PopoverItem } from "../types/popover";
+import GridPagination from "./GridPagination.vue";
+import GridEditForm, { type GridEditFormExpose } from "./GridEditForm.vue";
+import Form from "./Form.vue";
+import type { FormConfirmation, FormData, FormControl } from "../types/form";
+import { useGridStore } from "../stores/useGridStore";
+import { useDragStore } from "../stores/useDragStore";
+import GridSearch from "./GridSearch.vue";
+import { GridSearchType } from "../types/GridSearch";
+import GridSearchPanel from "./GridSearchPanel.vue";
+import { type GridSearchPanelVal } from "../types/GridSearchPanel";
+import { FilterJoinParam, FilterOperatorParam } from "../types/collection";
+import type { CollectionFilterFields } from "../types/collection";
+import { ControlType } from "../types/controlTypes";
+import GridCmdExpandRow from "./GridCmdExpandRow.vue";
+import { useRouteParamsStore } from "../stores/useRouteParams";
+
+interface TrackableEvents {
+	wheel?: (e: WheelEvent) => void;
+	click?: (e: MouseEvent) => void;
+	dblclick?: (e: MouseEvent) => void;
+	contextmenu?: (e: MouseEvent) => void;
+	keydown?: (e: KeyboardEvent) => void;
+	keypress?: (e: KeyboardEvent) => void;
+}
+
+const {
+	gridKey,
+	keyFields,
+	edit = <GridEdit>{ mode: GridEditMode.inline },
+	editCommands = ["add", "edit", "del"],
+	showHeader = true,
+	forSelect = false,
+	multySelect = true,
+	rowSelect = false,
+	navigate = { mouse: true, keyboard: true },
+	draggable = false,
+	mousePopup,
+	title,
+	commands,
+	columns,
+	footColumns,
+	inlineInsertPlace = GridInlineInsertPlace.first,
+	typeFormatter,
+	refreshInterval = 0,
+	store,
+	showPages = 3,
+	error,
+	formatRowClass,
+	expand,
+	data,
+} = defineProps<GridProps>();
+
+if (data) {
+	store.setData(data);
+}
+
+const slots = useSlots()
+const hasNoDataSlot = !!slots.noData
+
+//checkings
+if (
+	(edit as GridEdit)?.mode === GridEditMode.view &&
+	(!(edit as GridEdit).routeName || (edit as GridEdit).routeName?.length == 0)
+) {
+	throw new Error(
+		"Grid setup failed: edit.mode set to 'view' but edit.routeName property not defined",
+	);
+}
+
+const editFormPreInsertRef = ref<GridEditFormExpose | null>(null);
+const editFormPostInsertRef = ref<GridEditFormExpose | null>(null);
+const editFormUpdateRef = ref<GridEditFormExpose | null>(null);
+
+const router = useRouter();
+
+const route = useRoute();
+watch(
+	() => route.query.params,
+	// (newParams: string | string[] | undefined) => {
+	(newParams: any) => {
+		let parsedParams = {};
+
+		if (typeof newParams === "string") {
+			try {
+				parsedParams = JSON.parse(newParams);
+			} catch (error) {
+				console.error(
+					"Grid.vue store.setFetchParams() failed(): Invalid JSON:",
+					newParams,
+				);
+			}
+		}
+
+		store.setFetchParams(parsedParams);
+	},
+);
+
+const confirmation = reactive<FormConfirmation>({
+	show: false,
+	confirmed: undefined,
+	rejected: undefined,
+	text: "",
+});
+
+let currentCell: GridCurrentCell | null = <GridCurrentCell>{ row: 0, col: 0 };
+const getCurrentCell = () => currentCell;
+const editError = ref<string | undefined>(error);
+
+const visibleCols = computed(() =>
+	store.columnList.value.filter((c: GridCol) => c.visible !== false),
+);
+
+//searching
+const searchResults = ref<GridSearchPanelVal[]>([]);
+const initSearch = ref<string | undefined>(undefined);
+
+const removeSearchPanel = (id: string) => {
+	store.removeFilter(id);
+	searchResults.value = searchResults.value.filter((v: GridSearchPanelVal) => v.id != id);
+	if (searchResults.value.length == 0) {
+		commands?.forEach((cmd: GridCommand) => {
+			if (cmd.id == "search") {
+				cmd.compProps = { ...cmd.compProps, applied: false };
+			}
+		});
+	}
+	changePage(1);
+	table.value?.focus();
+};
+
+const onSearch = () => {
+	showModalSearch.value = true;
+};
+
+const applySearch = (columnId: string, searchValue: any, searchType: GridSearchType) => {
+	showModalSearch.value = false;
+
+	//set applied to search command
+	commands?.forEach((cmd: GridCommand) => {
+		if (cmd.id == "search") {
+			cmd.compProps = { ...cmd.compProps, applied: true };
+		}
+	});
+
+	let searchCol: GridCol | undefined = undefined;
+	columns.forEach((col: GridCol[]) => {
+		const filtered = col.filter((col: GridCol) => col.id == columnId);
+		if (filtered.length) {
+			searchCol = filtered[0];
+		}
+	});
+	if (!searchCol) {
+		return; //???
+	}
+
+	const { header, id, searchColumnId, searchColumnKeys } = searchCol;
+	let filterColumnId: string = searchColumnId ?? columnId;
+
+	let oper: FilterOperatorParam;
+	let searchValueDescr = "";
+
+	if (typeof searchValue === "object" && !searchColumnKeys && searchValue.descr) {
+		//search value can not be an object here
+		searchValue = searchValue.descr;
+		//TODO: turn to id search
+		if (!searchColumnId) {
+			filterColumnId += "->>'descr'";
+		}
+	}
+
+	if (searchType == GridSearchType.ON_BEG) {
+		searchValue = `${searchValue}%`;
+		searchValueDescr = `${searchValue}*`;
+		oper = FilterOperatorParam.ILK;
+	} else if (searchType == GridSearchType.ON_END) {
+		searchValue = `%${searchValue}`;
+		searchValueDescr = `*${searchValue}`;
+		oper = FilterOperatorParam.ILK;
+	} else if (searchType === GridSearchType.ON_PART) {
+		searchValue = `%${searchValue}%`;
+		searchValueDescr = `*${searchValue}*`;
+		oper = FilterOperatorParam.ILK;
+	} else {
+		//exact value
+		oper = FilterOperatorParam.E;
+	}
+
+	let filterVal: CollectionFilterFields = {};
+
+	//handle ref filter by key
+	if (typeof searchValue === "object" && searchValue.keys && searchColumnKeys) {
+		Object.keys(searchColumnKeys).forEach((key) => {
+			const value = searchColumnKeys[key];
+			if (searchValue.keys[key]) {
+				filterVal[value] = { o: oper, v: searchValue.keys[key] };
+			}
+		});
+	} else {
+		filterVal = { [filterColumnId]: { o: oper, v: searchValue } };
+	}
+
+	const filterId = store.addFilter({
+		j: FilterJoinParam.AND,
+		f: filterVal,
+	});
+	searchResults.value.push(<GridSearchPanelVal>{
+		id: filterId,
+		descr: header || id,
+		val: searchValueDescr,
+	});
+	changePage(1);
+	table.value?.focus();
+};
+
+const cancelSearch = () => {
+	showModalSearch.value = false;
+	table.value?.focus();
+};
+
+//default values
+// const NODE_NAME_COL = 'TD';
+// const NODE_NAME_BODY = 'TBODY';
+
+const isEditMode = ref(false);
+const isInsertMode = ref(false);
+
+const { t } = useI18n();
+
+const table = useTemplateRef("gridTable");
+
+const gridUIStore = useGridStore();
+
+store.setColumns(columns, keyFields); //pass property to store
+
+//all fields to form controls
+const formControlList = computed<FormControl[]>(() => {
+	return useFormControlList(store.columnList.value);
+});
+
+const processedGridData = computed(() => {
+	if (!store.displayedData.value) {
+		return [];
+	}
+	return store.displayedData.value.map((row: FormData, rowIndex: number) => {
+		const rowForView = <Record<string, string>>{};
+		let rowKey = "";
+		store.columnList.value.forEach((col: GridCol) => {
+			rowForView[col.id] = renderCellData(toRaw(row), toRaw(col), typeFormatter);
+			if (!keyFields && col.field && col.field.pKey) {
+				rowKey += rowKey == "" ? "" : "_";
+				rowKey += store.displayedData.value[rowIndex][col.id].toString();
+			}
+		});
+		if (keyFields) {
+			rowKey = keyFields
+				.map((field: string) => {
+					const value = store.displayedData.value[rowIndex][field];
+					return value != null
+						? value.toString()
+						: rowIndex.toString();
+				})
+				.join("_");
+		}
+		//add unique field with key
+		rowForView["rowUniquID"] = rowKey;
+
+		return rowForView;
+	});
+});
+
+const showModalEdit = ref(false);
+const showModalSearch = ref(false);
+
+const selectedRows = ref<Set<number>>(new Set());
+
+const expandedRefs = ref<Record<string, Ref>>({}); //expanded refs with key=rowKey
+const expandedRows = ref<Set<number>>(new Set());
+
+const handleRowExpanded = (rowIndex: number, val: boolean) => {
+	const next = new Set(expandedRows.value);
+	if (val) {
+		next.add(rowIndex);
+	} else {
+		next.delete(rowIndex);
+	}
+	expandedRows.value = next;
+};
+
+const gridCmdButtons = computed(() => {
+	if (!commands) {
+		return;
+	}
+	return commands.filter((cmd: GridCommand) => cmd.btn);
+});
+
+const emit = defineEmits<{
+	select: [rowIndex: number];
+	custom: [id: string];
+	saveState: [];
+	drop: [dragData: GridRowDrag];
+	dragEnd: [dragData: GridRowDrag];
+	dragFinished: [dragData: GridRowDrag];
+}>();
+
+const isCurrentCell = (rowIndex: number, colIndex: number): boolean => {
+	if (rowSelect === true) {
+		return currentCell?.row === rowIndex;
+	} else {
+		return currentCell?.row === rowIndex && currentCell?.col === colIndex;
+	}
+};
+
+const unsetHighlight = () => {
+	table.value
+		?.querySelectorAll(".grid-cell-current")
+		.forEach((el: any) => el.classList.remove("grid-cell-current"));
+};
+
+const clickOnCell = (e: MouseEvent, rowIndex: number, colIndex: number) => {
+	unsetHighlight();
+
+	currentCell = { row: rowIndex, col: colIndex };
+
+	const target = e.target as HTMLElement;
+	target.classList.add("grid-cell-current");
+};
+
+const setCurrentCell = (rowIndex: number | undefined, colIndex: number | undefined) => {
+	unsetHighlight();
+
+	if (rowIndex === undefined || colIndex === undefined) {
+		currentCell = null;
+	} else {
+		currentCell = { row: rowIndex, col: colIndex };
+		// Find the new cell and add the class
+		const tbody = table.value?.querySelector("tbody");
+		if (tbody) {
+			const newCell = tbody.rows[rowIndex]?.cells[colIndex];
+			if (newCell) {
+				newCell.classList.add("grid-cell-current");
+			}
+		}
+	}
+};
+
+const toggleRowSelection = (rowIndex: number, event: KeyboardEvent | MouseEvent): void => {
+	if (!multySelect) return;
+
+	if (event.ctrlKey || event.metaKey) {
+		if (selectedRows.value.has(rowIndex)) {
+			selectedRows.value.delete(rowIndex);
+		} else {
+			selectedRows.value.add(rowIndex);
+		}
+	} else if (event.shiftKey) {
+		if (selectedRows.value.size === 0) {
+			selectedRows.value.add(rowIndex);
+		} else {
+			const lastSelected = Array.from(selectedRows.value).pop() as number; // Ensure number type
+			const [start, end] = [lastSelected, rowIndex].sort((a, b) => a - b);
+			for (let i = start; i <= end; i++) {
+				selectedRows.value.add(i);
+			}
+		}
+	} else {
+		selectedRows.value.clear();
+		// selectedRows.value.add(rowIndex);
+	}
+};
+
+const bindEvents = computed(() => {
+	const handlers: TrackableEvents = {};
+
+	if (navigate?.mouse) {
+		handlers.wheel = onMouseWheel;
+	}
+	if (edit !== false || forSelect) {
+		handlers.dblclick = onDblClick;
+	}
+	if (navigate?.keyboard) {
+		handlers.keydown = onKeyDown;
+	}
+
+	return handlers;
+});
+
+//mouse events
+// const onMouseClick = (e: MouseEvent): void => {
+//     // const start = performance.now();
+//     // console.log("mouseClick", start);
+//
+//     if (isEditMode.value || isInsertMode.value) {
+//         return;
+//     }
+//     if (!e.target) {
+//         return;
+//     }
+//
+//     let target: EventTarget | Element | null = e.target;
+//     if (!isElement(target)) {
+//         return;
+//     }
+//
+//     // const end1 = performance.now();
+//     // console.log(`phase1 ${end1 - start}ms`);
+//
+//     // Use closest to find the closest TD and TBODY
+//     const tdElement = target.closest('td');
+//     if (!tdElement) {
+//         return;
+//     }
+//
+//     const tbodyElement = tdElement.closest('tbody');
+//     if (!tbodyElement) {
+//         return;
+//     }
+//
+//     const rowIndex = (tdElement.parentNode as HTMLTableRowElement).rowIndex - columns.length;
+//     const colIndex = tdElement.cellIndex;
+//
+//     setCurrentCell(rowIndex, colIndex);
+//
+// };
+
+const contextMenuOpen = ref<boolean>(false);
+const contextMenuPosition = ref<PopoverPosition>({x: 0, y: 0});
+const onContextMenu = (e: MouseEvent, rowIndex: number, colIndex: number): void => {
+	if(mousePopup) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (isEditMode.value || isInsertMode.value) {
+			return;
+		}
+
+		clickOnCell(e, rowIndex, colIndex);
+
+		// const targetTd = (e.target as HTMLElement).closest('td');
+		// if (!targetTd) return;
+		// const rect = targetTd.getBoundingClientRect();
+		// contextMenuPosition.value = { x: rect.left + 3, y: rect.bottom -3 };
+
+		contextMenuPosition.value = { x: e.clientX, y: e.clientY };
+		contextMenuOpen.value = true;
+	}
+};
+const contextMenuItemSelected = (item: PopoverItem): void => {
+	contextMenuOpen.value = false;
+	onCommand(item.id);
+}
+
+const onDblClick = (e: MouseEvent): void => {
+	if (isEditMode.value || isInsertMode.value || !editCommands.includes("edit")) {
+		return;
+	}
+
+	const td = (e.target as HTMLElement).closest("td");
+	if (td) {
+		window.getSelection()?.removeAllRanges();
+		e.stopPropagation();
+		e.preventDefault();
+
+		onSelectCell(e);
+	}
+};
+
+//keyboard events
+const onKeyDown = (e: KeyboardEvent): void => {
+	// if(e.key == "Escape" && (isEditMode.value || isInsertMode.value)){
+	// 	e.preventDefault();
+	// 	cancelEdit();
+	// 	return;
+
+	if (e.key == "Enter" && !isEditMode.value && !isInsertMode.value) {
+		if (forSelect) {
+			emit("select", currentCell ? currentCell.row : -1);
+		} else if (editCommands.includes("edit")) {
+			//if edit allowed
+			e.preventDefault();
+			onEditRow();
+		}
+		return;
+
+		// } else if (e.key == 'F5' && !isEditMode.value && !isInsertMode.value) {
+		// 	//copy
+		// 	e.preventDefault();
+		// 	onCopyRow();
+		// 	return;
+	} else if (
+		e.key == "Insert" &&
+		!isEditMode.value &&
+		!isInsertMode.value &&
+		editCommands.includes("add")
+	) {
+		//if insert allowed
+		e.preventDefault();
+		onAddRow();
+		return;
+	} else if (
+		e.key == "Delete" &&
+		!isEditMode.value &&
+		!isInsertMode.value &&
+		editCommands.includes("del")
+	) {
+		//if delete allowed
+		e.preventDefault();
+		onDelete();
+		return;
+	}
+
+	//row depend events
+	if (
+		!store.displayedData.value ||
+		!store.displayedData.value.length ||
+		!currentCell ||
+		isEditMode.value ||
+		isInsertMode.value
+	) {
+		return;
+	}
+
+	if (/^[a-zA-Zа-яА-Я0-9]$/.test(e.key) 
+		&& !isEditMode.value 
+		&& !isInsertMode.value 
+		&& !expandedRows.value.has(currentCell.row)
+	) {
+		console.log("initializing search isEditMode:"+isEditMode.value+", isInsertMode:"+isInsertMode.value)
+		e.preventDefault();
+		initSearch.value = e.key;
+		onSearch();
+		return;
+	}
+
+	let { row, col } = currentCell;
+	switch (e.key) {
+		case "ArrowUp":
+			e.preventDefault();
+			if (row > 0) {
+				toggleRowSelection(row, e);
+				row--;
+			}
+			break;
+
+		case "ArrowDown":
+			e.preventDefault();
+			if (row < store.displayedData.value.length - 1) {
+				toggleRowSelection(row, e);
+				row++;
+			}
+			break;
+
+		case "ArrowLeft":
+			e.preventDefault();
+			if (col > 0) col--;
+			break;
+
+		case "ArrowRight":
+			e.preventDefault();
+			if (col < store.columnList.value.length - 1) col++;
+			break;
+
+		default:
+			return;
+	}
+
+	setCurrentCell(row, col);
+};
+
+//double click on sell: select or to edit mode
+const onSelectCell = (e: MouseEvent | KeyboardEvent): void => {
+	if (edit !== false && (!forSelect || e.ctrlKey)) {
+		onEditRow();
+	} else if (forSelect && !e.ctrlKey) {
+		emit("select", currentCell ? currentCell.row : -1);
+	}
+};
+
+const resolveCmdResult = (result: Promise<string>, onOk?: () => void) => {
+	result.then((err: string) => {
+		if (typeof err === "string" && err.length) {
+			//show error in form
+			if (err !== "continue") {
+				//not an error
+				editError.value = err;
+			}
+		} else if (onOk) {
+			onOk();
+		}
+	});
+};
+
+const closeEdit = () => {
+	if ((edit as GridEdit)?.mode === GridEditMode.modal) {
+		showModalEdit.value = false;
+	}
+	if (isEditMode.value) {
+		isEditMode.value = false;
+	} else if (isInsertMode.value) {
+		isInsertMode.value = false;
+	}
+};
+
+const submitEditModified = (submitData: FormData, editData: FormData, closeEditMode: boolean) => {
+	if (isEditMode.value) {
+		const result = new Promise<string>((resolve) =>
+			store.updateRow(
+				submitData,
+				editData,
+				currentCell ? currentCell.row : -1,
+				resolve,
+			),
+		);
+		resolveCmdResult(result, () => {
+			if (closeEditMode) {
+				closeEdit();
+			}
+		});
+	} else if (isInsertMode.value) {
+		const result = new Promise<string>((resolve) =>
+			store.insertRow(submitData, editData, resolve),
+		);
+		resolveCmdResult(result, () => {
+			if (closeEditMode) {
+				closeEdit();
+				//make row current
+				if (store.displayedData.value.length) {
+					setCurrentCell(store.displayedData.value.length - 1, 0);
+				}
+			}
+		});
+	}
+};
+
+//submit is the actual submitted form with keys, no objects,
+//where editData holds the original edited object.
+const submitEdit = (submitData: FormData, editData: FormData) => {
+	//modified
+	submitEditModified(submitData, editData, true);
+	table.value?.focus();
+};
+
+const saveEdit = (submitData: FormData, editData: FormData) => {
+	//modified
+	submitEditModified(submitData, editData, false);
+	table.value?.focus();
+};
+
+//Used for both edit && insert.
+const cancelEdit = (modified: boolean) => {
+	console.log("cancelEdit with modified:"+modified)
+	if (!modified) {
+		closeEdit();
+		table.value?.focus();
+		return;
+	}
+
+	confirmation.confirmed = function () {
+		table.value?.focus();
+		closeEdit();
+	};
+	confirmation.rejected = function () {
+		table.value?.focus();
+		return;
+	};
+	confirmation.text = t("Grid.cancelChanges");
+	confirmation.show = true;
+};
+
+const changePage = (page: number) => {
+	// currentPage.value = page;
+	editError.value = undefined;
+	const result = new Promise<string>((resolve) => {
+		store.setCurrentPage(page), store.refresh(resolve);
+	});
+	resolveCmdResult(result);
+};
+
+//Default values for detail page with router.
+//Fetch parameters are added.
+//Used for add/copy.
+const detailParams = useRouteParamsStore();
+
+const onAddRow = () => {
+	store.setInsertRowMode(); //add all defaults
+
+	detailParams.params = {};//clear
+
+	if ( (edit as GridEdit)?.mode == GridEditMode.router ) {
+		saveCurrentState();
+		detailParams.params = {
+			isNew: true,
+			defaultValues: { ...store.editRow.value },
+			routeCollectionName: (edit as GridEdit).routeCollectionName,
+		};
+
+		router.push({
+			name: (edit as GridEdit).routeName,
+		}); //redirect
+
+		return;
+	}
+
+	editError.value = undefined;
+	if ((edit as GridEdit)?.mode === GridEditMode.modal) {
+		showModalEdit.value = true;
+	}
+	isInsertMode.value = true;
+};
+
+const onCopyRow = () => {
+	store.setCopyRowMode(currentCell ? currentCell.row : -1); //all defaults
+
+	detailParams.params = {};
+
+	if ((edit as GridEdit)?.mode === GridEditMode.router) {
+		saveCurrentState();
+		detailParams.params = {
+			isNew: true,
+			defaultValues: { ...store.editRow.value },
+			routeCollectionName: (edit as GridEdit).routeCollectionName,
+		};
+
+		const keys = store.getRowKeys(currentCell ? currentCell.row : -1);
+		router.push({
+			name: (edit as GridEdit).routeName,
+			query: Object.assign({}, keys, { copy: true }),
+		}); //redirect
+		return;
+	}
+
+	editError.value = undefined;
+	if ((edit as GridEdit)?.mode == GridEditMode.modal) {
+		showModalEdit.value = true;
+	}
+	isInsertMode.value = true;
+};
+
+// const openExtWinForEdit = () => {
+// 	const viewProps = (edit as GridEdit).form.compProps as ViewTypeProps;
+//
+// 	const viewId = uniqueID();
+// 	const resolvedRoute = router.resolve({
+// 		name: viewProps.routeName,
+// 		query: { 'view-id': viewId, ...keys },
+// 	});
+//
+// 	const winStrProps = Object.entries(viewProps.winProps)
+// 		.map(([key, value]) => `${key}=${value}`)
+// 		.join(',');
+// 	window.open(resolvedRoute.href, '_blank', winStrProps);
+//
+// 	window.addEventListener('message', (event) => {
+// 		console.log('event from', event);
+// 		if (event.data && event.data.viewId === viewId) {
+// 			console.log(
+// 				'modified',
+// 				event.data.modified,
+// 				event.data.modified === true,
+// 			);
+//
+// 			const senderWindow = event.source as Window;
+// 			if (senderWindow && 'close' in senderWindow) {
+// 				senderWindow.close();
+// 			}
+// 		}
+// 	});
+// };
+
+const onEditRow = () => {
+	if ((edit as GridEdit)?.mode == GridEditMode.router) {
+		saveCurrentState();
+
+		detailParams.params = {
+			isNew: false,
+			routeCollectionName: (edit as GridEdit).routeCollectionName,
+		};
+
+		const keys = store.getRowKeys(currentCell ? currentCell.row : -1);
+		router.push({
+			name: (edit as GridEdit)?.routeName,
+			query: keys,
+		}); //redirect
+		return;
+	} else if ((edit as GridEdit)?.mode == GridEditMode.view) {
+		//standalone window
+		return;
+	}
+
+	store.setUpdateRowMode(currentCell ? currentCell.row : -1);
+
+	editError.value = undefined;
+	if ((edit as GridEdit)?.mode == GridEditMode.modal) {
+		showModalEdit.value = true;
+	}
+	isEditMode.value = true;
+};
+
+// onCommand is a handler for all external commands.
+// Predefined commands are executed by grid itself,
+// other, unknow commands are passed to parent components as
+// custom events.
+const onCommand = (cmd: string) => {
+	if (isInsertMode.value || isEditMode.value) {
+		return;
+	}
+	// console.log('on command from Grid', cmd);
+	switch (cmd) {
+		case "add_row":
+			onAddRow();
+			break;
+
+		case "edit_row":
+			onEditRow();
+			break;
+
+		case "copy_row":
+			onCopyRow();
+			break;
+
+		case "print":
+			onPrint();
+			break;
+
+		case "refresh":
+			onRefresh();
+			break;
+
+		case "delete_row":
+			onDelete();
+			break;
+
+		case "search":
+			initSearch.value = undefined;
+			onSearch();
+			break;
+
+		default:
+			emit("custom", cmd);
+			break;
+	}
+	// table.value?.focus();
+};
+
+const onPrint = () => {
+	const result = new Promise<string>((resolve) => store.printCollection(resolve));
+	resolveCmdResult(result);
+};
+
+const restoreCurrentCell = () => {
+	if (!currentCell && store.displayedData.value && store.displayedData.value.length) {
+		setCurrentCell(0, 0);
+	} else if (
+		currentCell &&
+		(!store.displayedData.value || !store.displayedData.value.length)
+	) {
+		setCurrentCell(undefined, undefined);
+	} else if (
+		currentCell &&
+		store.displayedData.value &&
+		store.displayedData.value.length <= currentCell.row
+	) {
+		setCurrentCell(store.displayedData.value.length - 1, currentCell.col);
+	}
+	table.value?.focus();
+};
+
+const saveCurrentState = () => {
+	if (gridKey) {
+		gridUIStore.saveState(gridKey, {
+			currentPage: store.currentPage.value,
+			currentCell: currentCell,
+			filter: {
+				filters: store.getFilters(),
+				panels: searchResults.value,
+			},
+			sorting: store.currentSort.value,
+			selectedRows: toRaw(selectedRows.value),
+			expandedRows: toRaw(expandedRows.value),
+		});
+	}
+	if (expand) {
+		emit("saveState"); //for parent grids
+	}
+};
+
+const onRefresh = () => {
+	// console.log("onRefresh")
+	editError.value = undefined;
+	const result = new Promise<string>((resolve) => store.refresh(resolve));
+	resolveCmdResult(result, () => {
+		restoreCurrentCell();
+	});
+};
+
+const onDeleteCont = (): void => {
+	let rowsToDelete = [];
+	if (selectedRows.value.size > 0) {
+		// Ensure selectedRows.value is a Set of numbers
+		rowsToDelete = Array.from(selectedRows.value as Set<number>).map((index) => index);
+	} else {
+		rowsToDelete.push(currentCell ? currentCell.row : -1);
+	}
+
+	const result = new Promise<string>((resolve) => store.deleteRows(rowsToDelete, resolve));
+	resolveCmdResult(result, () => {
+		restoreCurrentCell();
+	});
+
+	selectedRows.value.clear();
+};
+
+const onDelete = () => {
+	confirmation.confirmed = function () {
+		onDeleteCont();
+	};
+	confirmation.rejected = function () {
+		return;
+	};
+	const selectedCount = selectedRows.value.size;
+	if (selectedCount) {
+		confirmation.text = t("Grid.deleteBatchConfirmation", {
+			count: selectedCount,
+		});
+	} else {
+		confirmation.text = t("Grid.deleteConfirmation");
+	}
+	confirmation.show = true;
+};
+
+const isColSortable = (col: GridCol): boolean => {
+	return col.sort !== false;
+};
+
+const toggleSort = (col: GridCol): void => {
+	if (
+		!store.displayedData.value?.length ||
+		!isColSortable(col) ||
+		isEditMode.value ||
+		isInsertMode.value
+	) {
+		return;
+	}
+	if (store.currentSort.value?.col === col.id) {
+		//reverse order, same column
+		store.currentSort.value.order =
+			store.currentSort.value.order === GridColSortOrder.asc
+				? GridColSortOrder.desc
+				: GridColSortOrder.asc;
+		store.columnSorting.value[col.id] = store.currentSort.value.order;
+	} else if (store.currentSort.value) {
+		//change column, keep old order
+		store.currentSort.value.col = col.id;
+		store.currentSort.value.sortCol = col.sortColumnId ?? col.id;
+		store.currentSort.value.order = store.columnSorting.value[col.id];
+	}
+	editError.value = undefined;
+	const result = new Promise<string>((resolve) => store.applySort(resolve));
+	resolveCmdResult(result);
+};
+
+const customFormatClass = (col: GridCol, row: any) => {
+	if (col.formatClass) {
+		let result: string | Record<string, boolean> | undefined;
+		if (typeof col.formatClass === "string") {
+			//plain value
+			result = col.formatClass;
+		} else {
+			//function
+			result = col.formatClass(row);
+		}
+
+		if (typeof result === "string") {
+			return result
+				.split(" ")
+				.filter(Boolean)
+				.reduce((acc: Record<string, boolean>, cls: string) => {
+					acc[cls] = true;
+					return acc;
+				}, {});
+		}
+	} else {
+		return {};
+	}
+};
+
+const customFormatRowClass = (row: any) => {
+	if (formatRowClass) {
+		let result: string | Record<string, boolean> | undefined;
+		if (typeof formatRowClass === "string") {
+			//plain value
+			result = formatRowClass;
+		} else {
+			//function
+			result = formatRowClass(row);
+		}
+
+		if (typeof result === "string") {
+			return result
+				.split(" ")
+				.filter(Boolean)
+				.reduce((acc: Record<string, boolean>, cls: string) => {
+					acc[cls] = true;
+					return acc;
+				}, {});
+		}
+	} else {
+		return {};
+	}
+};
+
+const isRowInView = (row: Element) => {
+	return false;
+	// const rect = row.getBoundingClientRect();
+	// const tableRect = table.value?.getBoundingClientRect();
+	// return tableRect && rect.top >= tableRect.top && rect.bottom <= tableRect.bottom;
+
+	// const rowTop = row.offsetTop;
+	// const rowBottom = rowTop + row.offsetHeight;
+	//
+	// const containerScrollTop = container.scrollTop;
+	// const containerBottom = containerScrollTop + container.clientHeight;
+	//
+	// return rowTop >= containerScrollTop && rowBottom <= containerBottom;
+};
+
+const scrollToRow = (rowIndex: number) => {
+	nextTick(() => {
+		if (!table.value) return;
+
+		const rows = table.value.querySelectorAll("tbody tr");
+		const selectedRow = rows[rowIndex];
+
+		if (selectedRow && !isRowInView(selectedRow)) {
+			selectedRow.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest",
+			});
+		}
+	});
+};
+
+// Add mouse scroll logic
+const onMouseWheel = (e: WheelEvent): void => {
+	if (isEditMode.value || isInsertMode.value) {
+		return;
+	}
+	if (!currentCell || !store.displayedData.value.length) {
+		return;
+	}
+
+	let { row } = currentCell;
+	const totalRows = store.displayedData.value.length;
+
+	// Scroll direction (wheel delta)
+	if (e.deltaY > 0) {
+		// Scroll Down
+		if (row < totalRows - 1) {
+			row++;
+		}
+	} else if (e.deltaY < 0) {
+		// Scroll Up
+		if (row > 0) {
+			row--;
+		}
+	}
+
+	setCurrentCell(row, currentCell.col);
+	scrollToRow(row);
+
+	e.preventDefault();
+};
+
+const isRowSelected = (index: number) => selectedRows.value.has(index);
+
+//refresh on timer
+let refreshTimerId: number | undefined;
+
+const setRefreshTimer = () => {
+	if (refreshInterval) {
+		refreshTimerId = window.setInterval(() => {
+			const result = new Promise<string>((resolve) => store.refresh(resolve));
+			resolveCmdResult(result);
+		}, refreshInterval);
+	} else if (refreshTimerId) {
+		clearInterval(refreshTimerId);
+	}
+};
+
+const dragStore = useDragStore();
+const onDragStart = (event: DragEvent, index: number) => {
+	const cell = getCurrentCell();
+	if (!cell || cell.row != index) {
+		setCurrentCell(index, cell?.col ?? 0);
+	}
+	const item = <GridRowDrag>{
+		source: {
+			gridKey: gridKey,
+			index: index,
+			data: store.displayedData.value[index],
+		},
+	};
+	event.dataTransfer?.setData("text/plain", JSON.stringify(item));
+	dragStore.startDrag(gridKey, item);
+	// console.log("start: dragStore.gridKey:"+dragStore.dragKey)
+};
+
+watch(
+	() => dragStore.dragFinished,
+	(finished: boolean) => {
+		if (finished && dragStore.dragKey == gridKey) {
+			emit("dragFinished", dragStore.draggingItem);
+			dragStore.clearDrag();
+		}
+	},
+);
+
+const onDragEnd = (event: DragEvent, index: number) => {
+	if (!event.dataTransfer) {
+		return;
+	}
+	const dragData: GridRowDrag = JSON.parse(event.dataTransfer.getData("text/plain"));
+	emit("dragEnd", dragData);
+};
+
+const onDrop = (event: DragEvent, targetIndex: number) => {
+	event.preventDefault();
+	if (!event.dataTransfer) {
+		return;
+	}
+
+	//target/source can be from different component
+	// const cell = getCurrentCell();
+	// setCurrentCell(targetIndex, cell?.col ?? 0);
+
+	//no comparison here, might be different objects
+	const dragData: GridRowDrag = JSON.parse(event.dataTransfer.getData("text/plain"));
+	dragData.target = {
+		gridKey: gridKey,
+		index: targetIndex,
+		data: store.displayedData.value[targetIndex],
+	};
+	emit("drop", dragData);
+	// Example: swap the rows
+	// const temp = items.value[draggedIndex]
+	// items.value.splice(draggedIndex, 1)
+	// items.value.splice(targetIndex, 0, temp)
+};
+
+onMounted(() => {
+	if (gridKey && gridUIStore.getState(gridKey)?.restoreOnNextLoad) {
+		const savedState = gridUIStore.getState(gridKey);
+		if (savedState?.restoreOnNextLoad) {
+			currentCell = savedState.currentCell;
+			store.setCurrentPage(savedState.currentPage);
+
+			if (savedState.filter && savedState.filter.panels) {
+				searchResults.value = savedState.filter.panels;
+				store.setFilters(savedState.filter.filters);
+			}
+			if (savedState.sorting) {
+				store.currentSort.value = savedState.sorting;
+			}
+			selectedRows.value = new Set(savedState.selectedRows);
+			expandedRows.value = new Set(savedState.expandedRows);
+
+			gridUIStore.clearState(gridKey);
+		}
+	}
+
+	setRefreshTimer();
+
+	if (!store.displayedData.value) {
+		onRefresh();
+	}
+});
+
+// const generateRowKey = (row: FormData, index: number) => {
+// 	if (!keyFields || keyFields.length === 0) {
+// 		return index; // Fallback to index if no keyFields are defined
+// 	}
+// 	return keyFields.map((field: string) => row[field]).join('_'); // Combine key field values
+// };
+
+const closeModal = (refresh: boolean) => {
+	closeEdit();
+	if (refresh) {
+		onRefresh();
+	}
+};
+
+onUnmounted(() => {
+	if (refreshTimerId) {
+		window.clearInterval(refreshTimerId);
+	}
+});
+
+const getEditRow = (): Ref | undefined => {
+	if (isEditMode.value) {
+		return editFormUpdateRef.value?.editRow;
+	} else if (isInsertMode.value && inlineInsertPlace == GridInlineInsertPlace.first) {
+		return editFormPreInsertRef.value?.editRow;
+	} else if (isInsertMode.value && inlineInsertPlace == GridInlineInsertPlace.last) {
+		return editFormPostInsertRef.value?.editRow;
+	}
+};
+/*
+
+	editForm: Ref;
+  isInsertMode.value
+    ? (inlineInsertPlace==GridInlineInsertPlace.first?
+      editFormPreInsertRef:editFormPostInsertRef)
+      : editFormUpdateRef,
+
+*/
+export interface GridExpose {
+	getCurrentCell: () => GridCurrentCell | null;
+	onRefresh: () => void;
+	onCommand: (cmd: string) => void;
+	getEditRow: () => Ref | undefined;
+	// editFormPreInsertRef: Ref;
+	// editFormPostInsertRef: Ref;
+	// editFormUpdateRef: Ref;
+	isInsertMode: Ref;
+	isEditMode: Ref;
+	expandedRefs: Ref;
+}
+
+defineExpose<GridExpose>({
+	getCurrentCell,
+	onRefresh,
+	onCommand,
+	getEditRow,
+	// editFormPreInsertRef,
+	// editFormUpdateRef,
+	// editFormPostInsertRef,
+	isInsertMode,
+	isEditMode,
+	expandedRefs,
+});
+</script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+</style>

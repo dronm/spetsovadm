@@ -1,0 +1,386 @@
+<template>
+	<Grid
+		v-model="currentCell"
+		:editable="editable"
+		:editMode="editMode"
+		:showHeader="showHeader"
+		:forSelect="forSelect"
+		:multySelect="multySelect"
+		:rowSelect="rowSelect"
+		:navigateMouse="navigateMouse"
+		:navigateKeyboard="navigateKeyboard"
+		:mousePopup="mousePopup"
+		:title="title"
+		:commands="commands"
+		:columns="columns"
+		:sort="sort"
+		:inlineInsertPlace="inlineInsertPlace"
+		:typeFormatter="typeFormatter"
+		:editForm="editForm"
+		:refreshInterval="refreshInterval"
+		:data="listData"
+		:editRow="editRow"
+		@sort="onSort"
+		@print="onPrint"
+		@select="onSelect"
+		@custom="onCustomEvent"
+		@edit_insert="onEditInsert"
+		@edit_update="onEditUpdate"
+		@edit_copy="onEditCopy"
+		@insert="onInsert"
+		@update="onUpdate"
+		@delete="onDelete"
+		@refresh="onRefresh"
+		@cancel="onCancel"
+	>
+	</Grid>
+
+	<template
+		v-if="
+			pagination &&
+			pagination.showPages &&
+			pagination.rowsPerPage &&
+			listData &&
+			listData.length
+		"
+	>
+		<GridPagination
+			:totalRows="aggData.tot_count"
+			:showPages="pagShowPages"
+			:rowsPerPage="pagRowsPerPage"
+			@page-changed="onPageChanged"
+		>
+		</GridPagination>
+	</template>
+
+	<Confirmation
+		v-model="confirmationShow"
+		:txt="confirmationText"
+		@confirm="onConfirmed"
+		@reject="onRejected"
+	>
+	</Confirmation>
+</template>
+
+<script setup lang="ts">
+import { useI18n } from "vue-i18n";
+import { ref, watch, computed, onMounted } from "vue";
+
+import Grid from "./Grid.vue";
+import GridPagination from "./GridPagination.vue";
+import { GridEditMode, GridInlineInsertPlace } from "../types/grid";
+import type {
+	GridRow,
+	GridCol,
+	GridCurrentCell,
+	GridCurrentSorting,
+	GridCommandResolve,
+} from "../types/grid";
+import Confirmation from "./Confirmation.vue";
+import { GridSrvOperation, type GridSrvProps } from "../types/gridSrv";
+import { useCollectionStore } from "../stores/useCollectionStore";
+import { type CollectionParams, SortDirect } from "../types/collection";
+import { useGridColumnList } from "../utils/useGrid";
+import { GridColSortOrder } from "../types/grid";
+import { APIError } from "../services/httpAPI";
+import type { APIFunction } from "../types/apiCall";
+
+const { t } = useI18n();
+
+const {
+	editable = true,
+	editMode = GridEditMode.inline,
+	showHeader = true,
+	forSelect = false,
+	multySelect = false,
+	rowSelect = false,
+	navigateMouse = true,
+	navigateKeyboard = true,
+	mousePopup,
+	title,
+	commands,
+	columns,
+	sort,
+	inlineInsertPlace = GridInlineInsertPlace.first,
+	typeFormatter,
+	editForm,
+	refreshInterval = 0,
+	pagination,
+	srvOperations,
+} = defineProps<GridSrvProps>();
+
+const emit = defineEmits<{
+	select: [];
+	custom: [cmd: string];
+}>();
+
+if (!srvOperations[GridSrvOperation.list]) {
+	throw new Error("operation 'list' should be devined on GridSrv component");
+}
+const listId = ref(srvOperations[GridSrvOperation.list].id);
+const listStore = useCollectionStore();
+const listData = computed(() => {
+	const collect = listStore.collections[listId.value];
+	if (collect) {
+		return collect.data;
+	}
+});
+const aggData = computed(() => {
+	const collect = listStore.collections[listId.value];
+	if (collect) {
+		return collect.agg;
+	}
+});
+// const loading = computed(() => listStore.loadings[listId]);
+// const error = computed(() => listStore.errors[listId]);
+
+const columnList = computed(() => useGridColumnList(columns));
+const keyColumns = computed(() =>
+	columnList.value.filter((col: GridCol) => col.pKey === true && col.field),
+);
+
+const currentCell = ref<GridCurrentCell | undefined>(
+	listData.value ? { row: 0, col: 0 } : undefined,
+);
+const editRow = ref<GridRow | undefined>(undefined);
+
+//pagination values can be altered at runtime
+const pagFromRow = ref<number>(0);
+const pagRowsPerPage = ref<number>(pagination ? pagination.rowsPerPage : 0);
+const pagShowPages = ref<number>(pagination ? pagination.showPages : 0);
+
+const currentSort = ref<GridCurrentSorting | undefined>(sort);
+
+const confirmationShow = ref(false);
+let onConfirmed = undefined;
+let onRejected = undefined;
+let confirmationText = "";
+
+const fetchCollection = async () => {
+	// +filters, sortings
+	const params: CollectionParams = {};
+	if (pagination) {
+		params.from = pagFromRow.value;
+		params.count = pagRowsPerPage.value;
+	}
+	if (currentSort.value != undefined) {
+		params.sorter = [
+			{
+				f: currentSort.value.col,
+				d:
+					currentSort.value.order == GridColSortOrder.asc
+						? SortDirect.ASC
+						: SortDirect.DESC,
+			},
+		];
+	}
+	await listStore.callAPI(srvOperations[GridSrvOperation.list], params);
+};
+
+watch(
+	() => listData.value,
+	() => {
+		if (listData.value && listData.value.length && currentCell.value === undefined) {
+			currentCell.value = { row: 0, col: 0 };
+		}
+	},
+	{ immediate: true },
+);
+
+const rowKeys = (rowIndex: number): any => {
+	if (!keyColumns.value || !keyColumns.value.length) {
+		throw new Error("Row key not defined!");
+	}
+
+	if (rowIndex >= listData.value.length || rowIndex < 0) {
+		throw new Error(
+			t("Grid.errRowIndexOutOfBounds", {
+				rowIndex: rowIndex,
+				upBound: listData.value.length - 1,
+			}),
+		);
+	}
+	let keys: any = {}; //key values
+	keyColumns.value.forEach((col: GridCol) => {
+		if (col.field) {
+			for (let dataField in listData.value[rowIndex]) {
+				if (col.field == dataField) {
+					keys[col.field] = listData.value[rowIndex][dataField];
+				}
+			}
+		}
+	});
+	return keys;
+};
+
+const onSort = (sort: GridCurrentSorting) => {
+	if (!listData.value) {
+		return;
+	}
+	currentSort.value = sort;
+	fetchCollection();
+};
+
+const onPageChanged = (currentPage: number) => {
+	pagFromRow.value = (currentPage - 1) * pagRowsPerPage.value;
+	currentCell.value = { row: 0, col: 0 };
+	fetchCollection();
+};
+
+const onPrint = () => {
+	console.log("onPrint");
+};
+
+const onSelect = () => {
+	emit("select");
+};
+
+const onCustomEvent = (cmd: string) => {
+	emit("custom", cmd); //redirect to parent
+};
+
+//set edit mode
+const onEditInsert = () => {
+	editRow.value = {};
+	columnList.value.forEach((col: GridCol) => {
+		if (col.field && editRow.value) {
+			editRow.value[col.field] = col.defaultValue;
+		}
+	});
+};
+
+const onEditUpdate = () => {
+	if (!currentCell.value || !listData.value) {
+		return;
+	}
+	const rowIndex = currentCell.value.row;
+	editRow.value = Object.create(listData.value[rowIndex]);
+};
+
+const onEditCopy = () => {
+	if (!currentCell.value || !listData.value) {
+		return;
+	}
+	const rowIndex = currentCell.value.row;
+	//copy mode: clone current row + defaults
+	editRow.value = Object.create(listData.value[rowIndex]);
+	columnList.value.forEach((col: GridCol) => {
+		if (col.field && editRow.value && editRow.value[col.field] === undefined) {
+			editRow.value[col.field] = col.defaultValue;
+		}
+	});
+};
+
+//return current row for server operations.
+//throws error if no current row exists.
+const operationCurrentRow = (): number => {
+	if (!currentCell.value) {
+		throw new Error("currentCell is undefined");
+	}
+	return currentCell.value.row;
+};
+
+//returns fetch fucntion for server operation.
+//throws error if no function exists.
+const operationAPIFunction = (oper: GridSrvOperation): APIFunction => {
+	if (!srvOperations[oper]) {
+		throw new Error("operation is not defined on grid component");
+	}
+	return srvOperations[oper].func;
+};
+
+const operationError = (e: any, resolve: GridCommandResolve) => {
+	if (e instanceof APIError) {
+		resolve(e.message || "unknown HTTP error");
+	} else {
+		resolve("unknown error");
+	}
+	throw e;
+};
+
+//submit update
+const onUpdate = async (resolve: GridCommandResolve) => {
+	try {
+		const rowIndex = operationCurrentRow();
+		const keys = rowKeys(rowIndex);
+		const func = operationAPIFunction(GridSrvOperation.update);
+		await func(keys, editRow.value);
+	} catch (e) {
+		operationError(e, resolve);
+	}
+	resolve("");
+	fetchCollection();
+};
+
+//submit insert
+const onInsert = async (resolve: (err: string) => void) => {
+	try {
+		const func = operationAPIFunction(GridSrvOperation.insert);
+		await func(editRow.value);
+	} catch (e) {
+		operationError(e, resolve);
+	}
+	resolve("");
+	fetchCollection();
+};
+
+//submit delete
+const onDelete = async (resolve: GridCommandResolve) => {
+	try {
+		const rowIndex = operationCurrentRow();
+		const keys = rowKeys(rowIndex);
+		const func = operationAPIFunction(GridSrvOperation.delete);
+		await func(keys);
+	} catch (e) {
+		operationError(e, resolve);
+	}
+	resolve("");
+	fetchCollection();
+};
+
+const onRefresh = () => {
+	fetchCollection();
+};
+
+const onCancel = async (resolve: GridCommandResolve, isInsert: boolean) => {
+	let modified = false;
+	if (!isInsert && editRow.value) {
+		if (!currentCell.value || !listData.value) {
+			resolve("onCancel() currentCell.value not defined");
+		}
+		const rowIndex = currentCell.value.row;
+		Object.keys(editRow.value).forEach((f: string) => {
+			if (
+				editRow.value[f] != undefined &&
+				editRow.value[f] != listData.value[rowIndex][f]
+			) {
+				modified = true;
+				return;
+			}
+		});
+	} else {
+		Object.keys(editRow.value).forEach((f: string) => {
+			if (editRow.value[f] != undefined) {
+				modified = true;
+				return;
+			}
+		});
+	}
+	if (modified) {
+		onConfirmed = function () {
+			resolve("");
+		};
+		onRejected = function () {
+			resolve("continue");
+		};
+		confirmationText = t("Grid.cancelChanges");
+		confirmationShow.value = true;
+	} else {
+		resolve("");
+	}
+};
+
+onMounted(() => {
+	fetchCollection();
+});
+</script>
