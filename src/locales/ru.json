@@ -264,6 +264,11 @@
 	},
 	"ProductCatDetail": {
 		"title": "Карточка категории товара",
+		"tabs": {
+			"common": "Реквизиты",
+			"products": "Товары",
+			"filters": "Фильтры"
+		},
 		"name": {
 			"label": "Наименование:",
 			"placeholder": "наименование категории",
@@ -301,7 +306,8 @@
 				"name": "Наименование",
 				"values": "Значения"
 			}
-		}
+		},
+		"goBack": "Все категории"
 	},
 	"ProductStockList": {
 		"title": "Остатки",
@@ -672,6 +678,11 @@
 		"comment_text": {
 			"label": "Описание",
 			"placeholder": "Описание шаблона"
+		},
+		"tabs": {
+			"common": "Реквизиты",
+			"providers": "Провайдеры",
+			"fields": "Поля"
 		}
 	},
 	"UserEmail": {
@@ -898,7 +909,30 @@
 		"noDataTitle": "Нет сообщений"
 	},
 	"ProductAttrVals": {
-		"title": "Свойства"
+		"title": "Свойства",
+		"noDataTitle": "Нет свойств",
+		"columns": {
+			"title": {
+				"label": "Наименование",
+				"title": "Наименование свойства"
+			},
+			"prompt": {
+				"label": "Подсказка",
+				"title": "Подсказка для свойства"
+			},
+			"comment_text": {
+				"label": "Комментарий",
+				"title": "Описание свойства"
+			},
+			"visible": {
+				"label": "Видимость",
+				"title": "Видимость свойства"
+			},
+			"value": {
+				"label": "Значение",
+				"title": "Значение свойства"
+			}
+		}
 	},
 	"ProductCharDetails": {
 		"title": "Характеристики",
@@ -915,7 +949,8 @@
 				"label": "Цена",
 				"title": "Цена за единицу по характеристике"
 			}
-		}
+		},
+		"noDataTitle": "Нет характеристик"
 	},
 	"RepProduct": {
 		"title": "Отчет по товарам"
@@ -1032,7 +1067,8 @@
 			"label": "Фактический адрес:",
 			"placeholder": "Фактический адрес",
 			"title": "Фактический адрес организации, предпренимателя"
-		}
+		},
+		"goBack": "Все поставщики"
 	},
 	"ConfirmationStatusList": {
 		"title": "Коды проверки",
@@ -1087,7 +1123,8 @@
 		"comment_text": {
 			"label": "Комментарий:",
 			"placeholder": "Комментарий"
-		}
+		},
+		"goBack": "Все акции"
 	},
 	"PromPointList": {
 		"title": "Баллы",
@@ -1138,7 +1175,9 @@
 				"name": "Наименование",
 				"value": "Значение"
 			}
-		}
+		},
+		"goBack": "Все фильтры",
+		"noDataTitle": "Нет значений фильтра"
 	},
 	"CheckoutOrderList": {
 		"title": "Заказы",
@@ -1157,7 +1196,7 @@
 			"product_cats_ref": "Категории",
 			"updated_at": "Обновлено"
 		},
-		"noDataTitle": "Нет категорий"
+		"noDataTitle": "Нет товаров в категории"
 	},
 	"ProductEdit": {
 		"label": "Номенклатура:",

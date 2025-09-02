@@ -143,6 +143,8 @@ export interface GridProps {
 	data?: any;
 	srvEvents?: EventSubscription; //custom events
 	defSrvEvents?: boolean; //use default events
+	expandRowComponent?: { comp: VueComponent, compProps?: VueComponentProps};
+	expandedClass?: string;
 }
 
 export interface GridCurrentCell {

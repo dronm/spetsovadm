@@ -30,452 +30,446 @@
 			:currentId="props.currentId"
 			v-slot:controls="slotProps: SlotProps"
 		>
-			<div>
-				<div>
-					<tabs>
-						<tab :title="$t('ProductDetail.tabs.common')">
-							<!-- title -->
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.common') }}
-							</div>
+			<tabs>
+				<tab :title="$t('ProductDetail.tabs.common')">
+					<!-- title -->
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.common') }}
+					</div>
 
-							<div class="tab-content-container">
-								<!-- content -->
-								<div class="tab-content">
-									<Edit
-										id="name"
-										:label="$t('ProductDetail.name.label')"
-										:title="$t('ProductDetail.name.title')"
-										:placeholder="
-											$t('ProductDetail.name.placeholder')
-										"
-										v-model="slotProps.data.name"
-										:error="slotProps.errors['name']"
-									>
-									</Edit>
+					<div class="tab-content-container">
+						<!-- content -->
+						<div class="tab-content">
+							<Edit
+								id="name"
+								:label="$t('ProductDetail.name.label')"
+								:title="$t('ProductDetail.name.title')"
+								:placeholder="
+									$t('ProductDetail.name.placeholder')
+								"
+								v-model="slotProps.data.name"
+								:error="slotProps.errors['name']"
+							>
+							</Edit>
 
-									<Edit
-										id="name_full"
-										:label="$t('ProductDetail.name_full.label')"
-										:title="$t('ProductDetail.name_full.title')"
-										:placeholder="
-											$t('ProductDetail.name_full.placeholder')
-										"
-										v-model="slotProps.data.name_full"
-										:error="slotProps.errors['name_full']"
-									>
-									</Edit>
+							<Edit
+								id="name_full"
+								:label="$t('ProductDetail.name_full.label')"
+								:title="$t('ProductDetail.name_full.title')"
+								:placeholder="
+									$t('ProductDetail.name_full.placeholder')
+								"
+								v-model="slotProps.data.name_full"
+								:error="slotProps.errors['name_full']"
+							>
+							</Edit>
 
-									<Edit
-										id="name_lat"
-										:label="$t('ProductDetail.name_lat.label')"
-										:title="$t('ProductDetail.name_lat.title')"
-										:placeholder="
-											$t('ProductDetail.name_lat.placeholder')
-										"
-										v-model="slotProps.data.name_lat"
-										:error="slotProps.errors['name_lat']"
-									>
-									</Edit>
+							<Edit
+								id="name_lat"
+								:label="$t('ProductDetail.name_lat.label')"
+								:title="$t('ProductDetail.name_lat.title')"
+								:placeholder="
+									$t('ProductDetail.name_lat.placeholder')
+								"
+								v-model="slotProps.data.name_lat"
+								:error="slotProps.errors['name_lat']"
+							>
+							</Edit>
 
-									<Edit
-										id="code_1c"
-										:label="$t('ProductDetail.code_1c.label')"
-										:title="$t('ProductDetail.code_1c.title')"
-										:placeholder="
-											$t('ProductDetail.code_1c.placeholder')
-										"
-										v-model="slotProps.data.code_1c"
-										:error="slotProps.errors['code_1c']"
-									>
-									</Edit>
+							<Edit
+								id="code_1c"
+								:label="$t('ProductDetail.code_1c.label')"
+								:title="$t('ProductDetail.code_1c.title')"
+								:placeholder="
+									$t('ProductDetail.code_1c.placeholder')
+								"
+								v-model="slotProps.data.code_1c"
+								:error="slotProps.errors['code_1c']"
+							>
+							</Edit>
 
-									<Edit
-										id="artikul"
-										:label="$t('ProductDetail.artikul.label')"
-										:title="$t('ProductDetail.artikul.title')"
-										v-model="slotProps.data.artikul"
-									>
-									</Edit>
+							<Edit
+								id="artikul"
+								:label="$t('ProductDetail.artikul.label')"
+								:title="$t('ProductDetail.artikul.title')"
+								v-model="slotProps.data.artikul"
+							>
+							</Edit>
 
-									<EditText
-										id="description"
-										:label="$t('ProductDetail.description.label')"
-										:title="$t('ProductDetail.description.title')"
-										:placeholder="
-											$t('ProductDetail.description.placeholder')
-										"
-										:max-length="5000"
-										:rows="10"
-										v-model="slotProps.data.description"
-										:error="slotProps.errors['description']"
-									>
-									</EditText>
+							<EditText
+								id="description"
+								:label="$t('ProductDetail.description.label')"
+								:title="$t('ProductDetail.description.title')"
+								:placeholder="
+									$t('ProductDetail.description.placeholder')
+								"
+								:max-length="5000"
+								:rows="10"
+								v-model="slotProps.data.description"
+								:error="slotProps.errors['description']"
+							>
+							</EditText>
 
-									<EditText
-										id="specification"
-										:label="$t('ProductDetail.specification.label')"
-										:title="$t('ProductDetail.specification.title')"
-										:placeholder="
-											$t(
-												'ProductDetail.specification.placeholder',
-											)
-										"
-										:max-length="5000"
-										:rows="10"
-										v-model="slotProps.data.specification"
-										:error="slotProps.errors['specification']"
-									>
-									</EditText>
+							<EditText
+								id="specification"
+								:label="$t('ProductDetail.specification.label')"
+								:title="$t('ProductDetail.specification.title')"
+								:placeholder="
+									$t(
+										'ProductDetail.specification.placeholder',
+									)
+								"
+								:max-length="5000"
+								:rows="10"
+								v-model="slotProps.data.specification"
+								:error="slotProps.errors['specification']"
+							>
+							</EditText>
 
-									<Edit
-										id="product_type"
-										:label="$t('ProductDetail.product_type.label')"
-										:title="$t('ProductDetail.product_type.title')"
-										v-model="slotProps.data.product_type"
-									>
-									</Edit>
+							<Edit
+								id="product_type"
+								:label="$t('ProductDetail.product_type.label')"
+								:title="$t('ProductDetail.product_type.title')"
+								v-model="slotProps.data.product_type"
+							>
+							</Edit>
 
-									<BrandEdit
-										v-model="slotProps.data.brands_ref"
-										:error="slotProps.errors['brands_ref']"
-									>
-									</BrandEdit>
+							<BrandEdit
+								v-model="slotProps.data.brands_ref"
+								:error="slotProps.errors['brands_ref']"
+							>
+							</BrandEdit>
 
-									<ProducerEdit
-										v-model="slotProps.data.producers_ref"
-										:error="slotProps.errors['producers_ref']"
-									>
-									</ProducerEdit>
-									<CountryEdit
-										v-model="slotProps.data.countries_ref"
-										:error="slotProps.errors['countries_ref']"
-									>
-									</CountryEdit>
-									<PriceGroupEdit
-										v-model="slotProps.data.price_groups_ref"
-										:error="slotProps.errors['price_groups_ref']"
-									>
-									</PriceGroupEdit>
+							<ProducerEdit
+								v-model="slotProps.data.producers_ref"
+								:error="slotProps.errors['producers_ref']"
+							>
+							</ProducerEdit>
+							<CountryEdit
+								v-model="slotProps.data.countries_ref"
+								:error="slotProps.errors['countries_ref']"
+							>
+							</CountryEdit>
+							<PriceGroupEdit
+								v-model="slotProps.data.price_groups_ref"
+								:error="slotProps.errors['price_groups_ref']"
+							>
+							</PriceGroupEdit>
 
-									<EditCheckbox
-										id="use_marking"
-										:label="$t('ProductDetail.use_marking.label')"
-										:title="$t('ProductDetail.use_marking.title')"
-										v-model="slotProps.data.use_marking"
-									>
-									</EditCheckbox>
-									<EditCheckbox
-										id="use_pack"
-										:label="$t('ProductDetail.use_pack.label')"
-										:title="$t('ProductDetail.use_pack.title')"
-										v-model="slotProps.data.use_pack"
-									>
-									</EditCheckbox>
-									<EditCheckbox
-										id="use_gtd"
-										:label="$t('ProductDetail.use_gtd.label')"
-										:title="$t('ProductDetail.use_gtd.title')"
-										v-model="slotProps.data.use_gtd"
-									>
-									</EditCheckbox>
-									<EditCheckbox
-										id="excisable"
-										:label="$t('ProductDetail.excisable.label')"
-										:title="$t('ProductDetail.excisable.title')"
-										v-model="slotProps.data.excisable"
-									>
-									</EditCheckbox>
-									<EditInt
-										id="popularity"
-										:label="$t('ProductDetail.popularity.label')"
-										:title="$t('ProductDetail.popularity.title')"
-										v-model="slotProps.data.popularity"
-									>
-									</EditInt>
+							<EditCheckbox
+								id="use_marking"
+								:label="$t('ProductDetail.use_marking.label')"
+								:title="$t('ProductDetail.use_marking.title')"
+								v-model="slotProps.data.use_marking"
+							>
+							</EditCheckbox>
+							<EditCheckbox
+								id="use_pack"
+								:label="$t('ProductDetail.use_pack.label')"
+								:title="$t('ProductDetail.use_pack.title')"
+								v-model="slotProps.data.use_pack"
+							>
+							</EditCheckbox>
+							<EditCheckbox
+								id="use_gtd"
+								:label="$t('ProductDetail.use_gtd.label')"
+								:title="$t('ProductDetail.use_gtd.title')"
+								v-model="slotProps.data.use_gtd"
+							>
+							</EditCheckbox>
+							<EditCheckbox
+								id="excisable"
+								:label="$t('ProductDetail.excisable.label')"
+								:title="$t('ProductDetail.excisable.title')"
+								v-model="slotProps.data.excisable"
+							>
+							</EditCheckbox>
+							<EditInt
+								id="popularity"
+								:label="$t('ProductDetail.popularity.label')"
+								:title="$t('ProductDetail.popularity.title')"
+								v-model="slotProps.data.popularity"
+							>
+							</EditInt>
 
-									<!--
-									<p>
-										{{ $t('ProductDetail.measureUnit.label') }}
-										<ProductMeasureUnit
-											id="measureUnit"
-											v-model="slotProps.data.measure_unit"
-											:error="slotProps.errors['measure_unit']"
-										>
-										</ProductMeasureUnit>
-									</p>
-							-->
-								</div>
-								<!-- preview image -->
-								<ProductCardAdmin
-									:product="
-										<ProductPreview>{
-											id: slotProps.data.id,
-											name: slotProps.data.name,
-											code_1c: slotProps.data.code_1c,
-											name_lat: slotProps.data.name_lat,
-											price: 0,
-											available: true,
-											preview_path: mainPreviewPath,
-											quant: 0,
-											attr_filter: undefined,
-										}
-									"
-									@cancel="formRef?.onCancel()"
-									@save="formRef?.onSubmit()"
+							<!--
+							<p>
+								{{ $t('ProductDetail.measureUnit.label') }}
+								<ProductMeasureUnit
+									id="measureUnit"
+									v-model="slotProps.data.measure_unit"
+									:error="slotProps.errors['measure_unit']"
 								>
-								</ProductCardAdmin>
-							</div>
-						</tab>
+								</ProductMeasureUnit>
+							</p>
+					-->
+						</div>
+						<!-- preview image -->
+						<ProductCardAdmin
+							:product="
+								<ProductPreview>{
+									id: slotProps.data.id,
+									name: slotProps.data.name,
+									code_1c: slotProps.data.code_1c,
+									name_lat: slotProps.data.name_lat,
+									price: 0,
+									available: true,
+									preview_path: mainPreviewPath,
+									quant: 0,
+									attr_filter: undefined,
+								}
+							"
+							@cancel="formRef?.onCancel()"
+							@save="formRef?.onSubmit()"
+						>
+						</ProductCardAdmin>
+					</div>
+				</tab>
 
-						<tab :title="$t('ProductDetail.tabs.pictures')">
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.pictures') }}
-							</div>
+				<tab :title="$t('ProductDetail.tabs.pictures')">
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.pictures') }}
+					</div>
 
-							<ButtonAdd 
-								v-if="slotProps.data.pictures?.length"
-								@click="pictureUpload" 
+					<ButtonAdd 
+						v-if="slotProps.data.pictures?.length"
+						@click="pictureUpload" 
+					/>
+
+					<div class="tab-content-container"> 
+						<div class="tab-content">
+
+							<!-- file -->
+							<input
+								type="file"
+								ref="fileInput"
+								@change="handleFileChange"
+								style="display: none"
 							/>
 
-							<div class="tab-content-container"> 
-								<div class="tab-content">
+							<div v-if="slotProps.data.pictures?.length" >
+								<div
+									class="text-sm text-gray-500"
+									v-if="
+										(formData as unknown as ProductDetail)
+											.pictures?.length
+									"
+								>
+									{{
+										t('ProductDetail.pictureIndex', {
+											PICT_INDEX:
+												(isNaN(currentPicture)
+													? 0
+													: currentPicture) + 1,
+											PICT_COUNT: (
+												formData as unknown as ProductDetail
+											).pictures?.length,
+										})
+									}}
+									<span v-show="isCurrentPictureMain">
+										, {{ t('ProductDetail.isMainText') }}
+									</span>
+								</div>
 
-									<!-- file -->
-									<input
-										type="file"
-										ref="fileInput"
-										@change="handleFileChange"
-										style="display: none"
-									/>
+								<Carousel
+									ref="carousel"
+									v-bind="carouselOptions"
+									v-model="currentPicture"
+								>
+									<Slide
+										v-for="(slide, index) in formData.pictures"
+										:key="(slide as Picture).ref_1c"
+									>
+										<img
+											:src="pictureSrc(slide)"
+											:alt="`image-${index + 1}`"
+										/>
+									</Slide>
+									<template #addons>
+										<Navigation />
+									</template>
+								</Carousel>
 
-									<div v-if="slotProps.data.pictures?.length" >
-										<div
-											class="text-sm text-gray-500"
-											v-if="
-												(formData as unknown as ProductDetail)
-													.pictures?.length
+								<!--
+								<div class="container-form-cmd">
+									<div>
+										<Button
+											@click="pictureUpload"
+											:title="
+												t(
+													'ProductCatDetail.pictureUpload.title',
+												)
+											"
+											:disabled="
+												slotProps.data.id === undefined
+													? true
+													: false
 											"
 										>
 											{{
-												t('ProductDetail.pictureIndex', {
-													PICT_INDEX:
-														(isNaN(currentPicture)
-															? 0
-															: currentPicture) + 1,
-													PICT_COUNT: (
-														formData as unknown as ProductDetail
-													).pictures?.length,
-												})
+												t(
+													'ProductDetail.pictureUpload.caption',
+												)
 											}}
-											<span v-show="isCurrentPictureMain">
-												, {{ t('ProductDetail.isMainText') }}
-											</span>
-										</div>
+										</Button>
 
-										<Carousel
-											ref="carousel"
-											v-bind="carouselOptions"
-											v-model="currentPicture"
-										>
-											<Slide
-												v-for="(slide, index) in formData.pictures"
-												:key="(slide as Picture).ref_1c"
-											>
-												<img
-													:src="pictureSrc(slide)"
-													:alt="`image-${index + 1}`"
-												/>
-											</Slide>
-											<template #addons>
-												<Navigation />
-											</template>
-										</Carousel>
-
-										<!--
-										<div class="container-form-cmd">
-											<div>
-												<Button
-													@click="pictureUpload"
-													:title="
-														t(
-															'ProductCatDetail.pictureUpload.title',
-														)
-													"
-													:disabled="
-														slotProps.data.id === undefined
-															? true
-															: false
-													"
-												>
-													{{
-														t(
-															'ProductDetail.pictureUpload.caption',
-														)
-													}}
-												</Button>
-
-											</div>
-
-											<Button
-												@click="pictureDelete"
-												:title="
-													t('ProductDetail.pictureDelete.title')
-												"
-												:disabled="
-													(formData as unknown as ProductDetail)
-														.pictures?.length
-														? false
-														: true
-												"
-											>
-												{{
-													t('ProductDetail.pictureDelete.caption')
-												}}
-											</Button>
-
-											<Button
-												@click="pictureMakeMain"
-												:title="
-													t('ProductDetail.pictureMakeMain.title')
-												"
-												:disabled="
-													(formData as unknown as ProductDetail)
-														.pictures?.length
-														? isCurrentPictureMain
-														: true
-												"
-											>
-												{{
-													t(
-														'ProductDetail.pictureMakeMain.caption',
-													)
-												}}
-											</Button>
-										</div>
-										-->
 									</div>
-									<ProductPictNoData v-else :cmd-add="true"
-										@add-picture="pictureUpload"
+
+									<Button
+										@click="pictureDelete"
+										:title="
+											t('ProductDetail.pictureDelete.title')
+										"
+										:disabled="
+											(formData as unknown as ProductDetail)
+												.pictures?.length
+												? false
+												: true
+										"
 									>
-									</ProductPictNoData>
+										{{
+											t('ProductDetail.pictureDelete.caption')
+										}}
+									</Button>
+
+									<Button
+										@click="pictureMakeMain"
+										:title="
+											t('ProductDetail.pictureMakeMain.title')
+										"
+										:disabled="
+											(formData as unknown as ProductDetail)
+												.pictures?.length
+												? isCurrentPictureMain
+												: true
+										"
+									>
+										{{
+											t(
+												'ProductDetail.pictureMakeMain.caption',
+											)
+										}}
+									</Button>
 								</div>
-
-								<!-- preview image -->
-								<ProductCardAdmin
-									:product="
-										<ProductPreview>{
-											id: slotProps.data.id,
-											name: slotProps.data.name,
-											code_1c: slotProps.data.code_1c,
-											name_lat: slotProps.data.name_lat,
-											price: 0,
-											available: true,
-											preview_path: mainPreviewPath,
-											quant: 0,
-											attr_filter: undefined,
-										}
-									"
-									@cancel="formRef?.onCancel()"
-									@save="formRef?.onSubmit()"
-								>
-								</ProductCardAdmin>
-
+								-->
 							</div>
-						</tab>
+							<ProductPictNoData v-else :cmd-add="true"
+								@add-picture="pictureUpload"
+							>
+							</ProductPictNoData>
+						</div>
 
-						<tab :title="$t('ProductDetail.tabs.product_cats')">
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.product_cats') }}
-							</div>
+						<!-- preview image -->
+						<ProductCardAdmin
+							:product="
+								<ProductPreview>{
+									id: slotProps.data.id,
+									name: slotProps.data.name,
+									code_1c: slotProps.data.code_1c,
+									name_lat: slotProps.data.name_lat,
+									price: 0,
+									available: true,
+									preview_path: mainPreviewPath,
+									quant: 0,
+									attr_filter: undefined,
+								}
+							"
+							@cancel="formRef?.onCancel()"
+							@save="formRef?.onSubmit()"
+						>
+						</ProductCardAdmin>
 
-							<div class="tab-content-container">
-								<div class="tab-content">
-									<ProductLinkList
-										v-if="slotProps.data.id"
-										:productId="slotProps.data.id"
-									/>
-								</div>
-							</div>
-						</tab>
+					</div>
+				</tab>
 
-						<tab :title="$t('ProductDetail.tabs.certs')">
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.certs') }}
-							</div>
+				<tab :title="$t('ProductDetail.tabs.product_cats')">
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.product_cats') }}
+					</div>
 
-							<div class="tab-content-container">
-								<div class="tab-content">
-									<ProductCertificateUseRangeList
-										v-if="slotProps.data.id"
-										:productId="slotProps.data.id"
-									/>
-								</div>
-							</div>
-						</tab>
+					<div class="tab-content-container">
+						<div class="tab-content">
+							<ProductLinkList
+								v-if="slotProps.data.id"
+								:productId="slotProps.data.id"
+							/>
+						</div>
+					</div>
+				</tab>
 
-						<tab :title="$t('ProductDetail.tabs.chars')">
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.chars') }}
-							</div>
+				<tab :title="$t('ProductDetail.tabs.certs')">
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.certs') }}
+					</div>
 
-							<div class="tab-content-container">
-								<div class="tab-content">
-									<ProductCharDetails
-										v-model="slotProps.data.char_details"
-									/>
-								</div>
-							</div>
-						</tab>
+					<div class="tab-content-container">
+						<div class="tab-content">
+							<ProductCertificateUseRangeList
+								v-if="slotProps.data.id"
+								:productId="slotProps.data.id"
+							/>
+						</div>
+					</div>
+				</tab>
 
-						<tab :title="$t('ProductDetail.tabs.attrs')">
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.attrs') }}
-							</div>
+				<tab :title="$t('ProductDetail.tabs.chars')">
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.chars') }}
+					</div>
 
-							<div class="tab-content-container">
-								<div class="tab-content">
-									<ProductAttrVals
-										v-model="slotProps.data.product_attr_vals"
-									/>
-								</div>
-							</div>
-						</tab>
+					<div class="tab-content-container">
+						<div class="tab-content">
+							<ProductCharDetails
+								v-model="slotProps.data.char_details"
+							/>
+						</div>
+					</div>
+				</tab>
 
-						<tab :title="$t('ProductDetail.tabs.stocks')">
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.stocks') }}
-							</div>
+				<tab :title="$t('ProductDetail.tabs.attrs')">
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.attrs') }}
+					</div>
 
-							<div class="tab-content-container">
-								<div class="tab-content">
-									<ProductStockList
-										v-if="slotProps.data.id"
-										:productId="slotProps.data.id"
-									/>
-								</div>
-							</div>
-						</tab>
+					<div class="tab-content-container">
+						<div class="tab-content">
+							<ProductAttrVals
+								v-model="slotProps.data.product_attr_vals"
+							/>
+						</div>
+					</div>
+				</tab>
 
-						<tab :title="$t('ProductDetail.tabs.prices')">
-							<div class="tab-content-title">
-								{{ $t('ProductDetail.tabs.prices') }}
-							</div>
+				<tab :title="$t('ProductDetail.tabs.stocks')">
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.stocks') }}
+					</div>
 
-							<div class="tab-content-container">
-								<div class="tab-content">
-									<ProductPriceList
-										v-if="slotProps.data.id"
-										:productId="slotProps.data.id"
-									/>
-								</div>
-							</div>
-						</tab>
-					</tabs>
-				</div>
+					<div class="tab-content-container">
+						<div class="tab-content">
+							<ProductStockList
+								v-if="slotProps.data.id"
+								:productId="slotProps.data.id"
+							/>
+						</div>
+					</div>
+				</tab>
 
+				<tab :title="$t('ProductDetail.tabs.prices')">
+					<div class="tab-content-title">
+						{{ $t('ProductDetail.tabs.prices') }}
+					</div>
 
-			</div>
+					<div class="tab-content-container">
+						<div class="tab-content">
+							<ProductPriceList
+								v-if="slotProps.data.id"
+								:productId="slotProps.data.id"
+							/>
+						</div>
+					</div>
+				</tab>
+			</tabs>
 		</template>
 	</FormCustom>
 
@@ -512,7 +506,7 @@ import EditInt from '@/lib/components/EditInt.vue';
 import EditText from '@/lib/components/EditText.vue';
 import Tabs from '@/lib/components/Tabs.vue';
 import Tab from '@/lib/components/Tab.vue';
-import Button from '@/lib/components/Button.vue';
+// import Button from '@/lib/components/Button.vue';
 import { type FormErrorList } from '@/lib/utils/useValidation';
 import DetailTitle from '@/components/DetailTitle.vue';
 import {

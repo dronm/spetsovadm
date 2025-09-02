@@ -1,6 +1,9 @@
 <template>
-	<div class="detail-title">{{ t('PromPointDetail.title') }}</div>
-
+	<DetailTitle
+		:back-title="t('PromPointDetail.goBack')"
+		:title="t('PromPointDetail.title')"
+		back-route="promPointList"
+	/>
 	<FormCustom
 		ref="formRef"
 		:key-types="{ id: 'number' }"
@@ -75,8 +78,9 @@ import type {
 	FormCustomProps,
 } from '@/lib/types/formCustom';
 import { newFormSrvOperations } from '@/lib/types/form';
+import DetailTitle from '@/components/DetailTitle.vue';
 
-import { type PromPointDetail } from '@/models/promPoint';
+import { type PromPoint } from '@/models/promPoint';
 import {
 	promPointAdd,
 	promPointDetail,
@@ -86,7 +90,7 @@ import { promPointFields } from '@/models/promPoint';
 
 //
 interface SlotProps {
-	data: PromPointDetail;
+	data: PromPoint;
 	errors: FormErrorList;
 }
 

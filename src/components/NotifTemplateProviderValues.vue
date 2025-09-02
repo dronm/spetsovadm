@@ -1,23 +1,33 @@
 <template>
-	<Grid
+	<GridView
 		grid-key="providerValues"
-		:title="$t('NotifTemplateDetail.providerValues.title')"
+		ref="gridViewRef"
 		:typeFormatter="typeFormatter"
 		:columns="columns"
-		:commands="commands"
+		:commands="
+			<GridCommand[]>[
+				{ id: 'search', btn: true, comp: GridCmdSearch},
+				{ id: 'add_row', btn: true, comp: GridCmdAddRow },
+			]
+		"
+		:edit="{mode: GridEditMode.inline,}"
 		:store="gridStore"
 	>
-	</Grid>
+		<template v-slot:noData>
+			<GridNoData 
+				:caption="$t('NotifTemplateProviderValues.noDataTitle')" 
+				@add-row="gridViewRef?.gridRef.onCommand('add_row')"
+			/>
+		</template>
+	</GridView>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useI18n } from 'vue-i18n';
 
-import Grid from '@/lib/components/Grid.vue';
-import GridCmdAddRow from '@/lib/components/GridCmdAddRow.vue';
-import GridCmdEditRow from '@/lib/components/GridCmdEditRow.vue';
-import GridCmdDeleteRow from '@/lib/components/GridCmdDeleteRow.vue';
-import { type GridCommand } from '@/lib/types/grid';
+import GridView, { type GridViewExpose } from '@/lib/components/GridView.vue';
+import { GridEditMode, type GridCommand } from '@/lib/types/grid';
 import { useCollectionLocal } from '@/lib/composables/useCollectionLocal';
 import { GridColSortOrder } from '@/lib/types/grid';
 import type { GridCol } from '@/lib/types/grid';
@@ -26,7 +36,10 @@ import { ValidationConstraint } from '@/lib/types/validation';
 
 import { type NotifTemplateProviderValue } from '@/models/notifTemplate';
 import { typeFormatter } from '@/utils/typeFormatter';
+import GridCmdSearch from './GridCmdSearch.vue';
+import GridCmdAddRow from './GridCmdAddRow.vue';
 
+const gridViewRef = ref<GridViewExpose | null>(null);
 const { t } = useI18n();
 
 const data = defineModel<NotifTemplateProviderValue[] | undefined | null>();
@@ -58,12 +71,6 @@ const columns = <GridCol[][]>[
 			sort: false,
 		},
 	],
-];
-
-const commands: GridCommand[] = [
-	{ id: 'add_row', btn: true, comp: GridCmdAddRow },
-	{ id: 'edit_row', btn: true, comp: GridCmdEditRow },
-	{ id: 'delete_row', btn: true, comp: GridCmdDeleteRow },
 ];
 
 const initSort = { col: 'id', order: GridColSortOrder.asc };

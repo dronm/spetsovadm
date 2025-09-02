@@ -11,8 +11,8 @@
 
 				<!--<img class="w-5 h-5" :src="images.first" /> -->
 				<Component 
-					v-if="pagComponents.first"
-					:is="pagComponents.first"
+					v-if="pagIcons.first"
+					:is="pagIcons.first"
 					class="w-5 h-5"
 					:color="currentPage === 1? pagBtnColorDisabled : pagBtnColorEnabled"
 				</Component>
@@ -28,8 +28,8 @@
 				:title="$t('Pagination.goPrevTitle')"
 			>
 				<Component 
-					v-if="pagComponents.prev"
-					:is="pagComponents.prev"
+					v-if="pagIcons.prev"
+					:is="pagIcons.prev"
 					:color="currentPage === 1? pagBtnColorDisabled : pagBtnColorEnabled"
 					class="w-5 h-5"
 				</Component>
@@ -95,8 +95,8 @@
 				{{ t("Pagination.goNext") }}
 
 				<Component 
-					v-if="pagComponents.next"
-					:is="pagComponents.next"
+					v-if="pagIcons.next"
+					:is="pagIcons.next"
 					:color="currentPage === totalPages? pagBtnColorDisabled : pagBtnColorEnabled"
 					class="w-5 h-5"
 				</Component>
@@ -112,8 +112,8 @@
 				{{ t("Pagination.goLast") }}
 
 				<Component 
-					v-if="pagComponents.last"
-					:is="pagComponents.last"
+					v-if="pagIcons.last"
+					:is="pagIcons.last"
 					:color="currentPage === totalPages? pagBtnColorDisabled : pagBtnColorEnabled"
 					class="w-5 h-5"
 				</Component>
@@ -199,13 +199,13 @@ const goToNext = () => {
 const pagBtnColorEnabled = "#097350";
 const pagBtnColorDisabled = "#A4A7AE";
 
-interface PaginationComponents {
+interface PaginationIcons {
 	first: string;
 	last: string;
 	prev: string;
 	next: string;
 }
-const pagComponents = inject('paginationComponents') as PaginationComponents;
+const pagIcons = inject('paginationIcons') as PaginationIcons;
 
 </script>
 

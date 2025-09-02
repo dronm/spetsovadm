@@ -13,13 +13,13 @@
 				v-if="!cmdAdd"
 			>
 				<div 
-					class="self-stretch text-[color:var(--Gray-900,#181D27)] text-center [font-family:Inter] text-base font-semibold leading-6"
+					class="self-stretch text-[color:var(--gray-900)] text-center [font-family:Inter] text-base font-semibold leading-6"
 				>
 					{{ $t('ProductNoPictData.text1') }}
 				</div>
 
 				<div 
-					class="self-stretch text-[color:var(--Gray-600,#535862)] text-center [font-family:Inter] text-sm font-normal leading-5"
+					class="self-stretch text-[color:var(--gray-600)] text-center [font-family:Inter] text-sm font-normal leading-5"
 				>
 					{{ $t('ProductNoPictData.text2') }}
 				</div>
@@ -30,7 +30,7 @@
 				class="flex flex-col items-center gap-5 flex-[1_0_0]"
 			>
 				<div 
-					class="self-stretch text-[color:var(--Gray-900,#181D27)] text-center [font-family:Inter] text-base font-semibold leading-6"
+					class="self-stretch text-[color:var(--gray-900)] text-center [font-family:Inter] text-base font-semibold leading-6"
 				>
 					{{ $t('ProductNoPictData.text1') }}
 				</div>
@@ -47,7 +47,7 @@
 					</span>
 				</button>
 -->
-				<ButtonAdd @click="emit('addPicture')" />
+				<ButtonAdd @click="emit('addPicture')" color="var(--base-white)"/>
 			</div>
 		</div>
 

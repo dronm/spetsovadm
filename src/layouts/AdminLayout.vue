@@ -2,11 +2,11 @@
 	<Login v-if="!authed" />
 
 	<template v-else>
-		<div class="w-full h-[828px] [background:#FFF] flex">
+		<div class="w-full h-screen [background:#FFF] flex">
 
 			<SidebarMenu v-if="menu.length" :menu="menu"/>
 
-			<div class="flex-1 relative">
+			<div class="flex-1 relative overflow-auto">
 				<Account @selected="onAccountMenuSelected" />
 				<router-view />
 			</div>

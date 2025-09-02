@@ -1,12 +1,12 @@
 <template>
-	<div class="flex w-[280px] flex-col items-start gap-6">
+	<div class="flex w-[280px] flex-col items-start gap-6 mr-[24px]">
 		<!-- product card -->
 		<div class="flex w-[280px] flex-col items-start gap-4">
 			<!-- slider -->
 			<div class="flex flex-col items-center gap-2 self-stretch">
 				<div 
 					v-if="product?.preview_path?.length"
-					class="flex h-[280px] justify-end items-start gap-[74px] self-stretch border border-[color:var(--Gray-300,#D5D7DA)] p-3 rounded-2xl border-solid"
+					class="flex h-[280px] justify-end items-start gap-[74px] self-stretch border border-[color:var(--gray-300)] p-3 rounded-2xl border-solid"
 				>
 					<router-link 
 						:to="prodDetailRef"

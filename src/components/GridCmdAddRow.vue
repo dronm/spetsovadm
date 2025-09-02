@@ -6,7 +6,7 @@
 	>
 		<PlusCircle class="w-5 h-5" color="#097350"/>
 
-		<div class="flex justify-center items-center px-0.5 py-0">
+		<div v-if="showCaption" class="flex justify-center items-center px-0.5 py-0">
 			<span 
 				class="text-[color:var(--brand-700)] [var(--font-inter)] text-base font-semibold leading-6"
 			>
@@ -24,13 +24,18 @@ import PlusCircle from "@/components/icons/PlusCircle.vue";
 
 const emit = defineEmits(["command"]);
 
+interface Props {
+	showCaption?: boolean;
+}
+const { showCaption=true } = defineProps<Props>();
+
 const { t } = useI18n();
 
 const onClick = () => {
 	emit("command", "add_row");
 };
 
-const img = new URL(`../assets/collection-cmd/add.png`, import.meta.url).href;
+// const img = new URL(`../assets/collection-cmd/add.png`, import.meta.url).href;
 
 </script>
 

@@ -1,6 +1,6 @@
 //----- template -----
 <template>
-
+	<!--
 	<CollectionTitle :title="
 			$t(
 				parentData
@@ -8,7 +8,7 @@
 					: 'ProductCatList.title',
 			)
 	" />
-
+-->
 	<GridView
 		ref="gridViewRef"
 		:grid-key="
@@ -17,8 +17,9 @@
 		:key-fields="['id']"
 		:typeFormatter="typeFormatter"
 		:show-pages="COLLECTION_SHOW_PAGES"
+		:show-header="false"
 		:columns="columns"
-		:commands="defGridSrvCommands"
+		:commands="commands"
 		:store="gridStore"
 		:edit="{
 			mode: GridEditMode.router,
@@ -26,8 +27,9 @@
 			routeCollectionName: returnCollectionName,
 		}"
 		:expand="{ comp: ProductCatHierarchy }"
-		:navigate="{ mouse: false }"
-		:show-header="true"
+		:navigate="{ mouse: false, keyboard: false }"
+		:expandRowComponent="{ comp: ProductCatHierarchyExpand }"
+		expandedClass="pl-[32px]"
 		:error="error"
 		:draggable="true"
 		@drop="handleDrop"
@@ -35,9 +37,9 @@
 		@grid-event="handleGridEvent"
 		:mouse-popup="defGridPopup()"
 	>
-		<template v-slot:noData>
+		<template v-slot:noData v-if="!parentData">
 			<GridNoData 
-				caption="No orders" 
+				:caption="$t('ProductCatList.noDataTitle')" 
 				@add-row="gridViewRef?.gridRef.onCommand('add_row')"
 			/>
 		</template>
@@ -68,6 +70,7 @@ import { useDragStore } from '@/lib/stores/useDragStore';
 import { COLLECTION_SHOW_PAGES } from '@/config/constants';
 import { typeFormatter } from '@/utils/typeFormatter';
 import ProductCatHierarchy from './ProductCatHierarchy.vue';
+import ProductCatHierarchyExpand from '@/components/ProductCatHierarchyExpand.vue';
 
 import {
 	productCatAdd,
@@ -77,7 +80,7 @@ import {
 	productCatUpdate,
 } from '../services/productCat';
 import { productCatFields } from '@/models/productCat';
-import CollectionTitle from '@/components/CollectionTitle.vue';
+// import CollectionTitle from '@/components/CollectionTitle.vue';
 import GridNoData from '@/components/GridNoData.vue';
 
 // import { PICT_CDN_CAT_PREVIEW } from '@/config/constants';
@@ -89,8 +92,8 @@ import type { ProductCatKey, ProductCatNew } from '@/models/productCat';
 import { productLinkAdd } from '@/services/productLink';
 import type { ProductLink } from '@/models/productLink';
 import { defGridPopup } from "@/utils/defGridPopup";
-import GridCmdSearch from '@/components/GridCmdSearch.vue';
 import GridCmdAddRow from '@/components/GridCmdAddRow.vue';
+import GridCmdSearch from '@/components/GridCmdSearch.vue';
 
 const { t } = useI18n();
 
@@ -113,6 +116,7 @@ const columns = ref<GridCol[][]>([
 			field: productCatFields.name,
 			sort: GridColSortOrder.desc,
 			expand: true,
+			formatClass:"border-0",
 		},
 	],
 ]);
@@ -229,7 +233,25 @@ const refresh = () => {
 const searchFields = ['name' ];
 const { handleGridEvent } = useGridSearchHandler(gridStore, searchFields);
 
+const commands = <GridCommand[]>[
+	{ id: 'add_row', btn: true, comp: GridCmdAddRow, compProps: { showCaption :false } },
+];
+if(!parentData){
+	commands.push(
+		{ id: 'search', btn: true, comp: GridCmdSearch }
+	);
+}
+
 defineExpose({
 	refresh,
 });
 </script>
+
+<style>
+	.grid-table {
+		width: 100%;
+		border: none !important;
+		/* border-collapse: collapse; */
+	}
+
+</style>

@@ -1,5 +1,9 @@
 <template>
-	<div class="detail-title">{{ t('SupplierDetail.title') }}</div>
+	<DetailTitle
+		:back-title="t('SupplierDetail.goBack')"
+		:title="t('SupplierDetail.title')"
+		back-route="supplierList"
+	/>
 
 	<FormCustom
 		ref="formRef"
@@ -57,6 +61,7 @@ import { useI18n } from 'vue-i18n';
 
 import Edit from '@/lib/components/Edit.vue';
 import FormCustom from '@/lib/components/FormCustom.vue';
+import DetailTitle from '@/components/DetailTitle.vue';
 import { type FormErrorList } from '@/lib/utils/useValidation';
 import type {
 	FormCustomExposed,

@@ -1,5 +1,10 @@
 <template>
-	<div class="detail-title">{{ t('ProductCatDetail.title') }}</div>
+	<!-- detailParams.params.routeCollectionName ?? 'productCatSetProduct' -->
+	<DetailTitle
+		:back-title="t('ProductCatDetail.goBack')"
+		:title="t('ProductCatDetail.title')"
+		back-route="productCatSetProduct"
+	/>
 
 	<FormCustom
 		ref="formRef"
@@ -12,9 +17,7 @@
 				productCatDetail,
 			)
 		"
-		:collectionRoute="
-			detailParams.params.routeCollectionName ?? 'productCatHierarchy'
-		"
+		collectionRoute="productCatSetProduct"
 		:error="props.error"
 		:isNew="props.isNew"
 		:data="props.data"
@@ -26,118 +29,164 @@
 			:currentId="props.currentId"
 			v-slot:controls="slotProps: SlotProps"
 		>
-			<ul class="cat-list">
-				<CatPublicListCard
-					v-for="cat in slotProps.data.parents"
-					:key="cat?.id"
-					:category="cat"
-				>
-				</CatPublicListCard>
-			</ul>
-
-			<div class="flex flex-col md:flex-row gap-4">
-				<div class="flex-shrink-0">
-					<!-- static image -->
-					<img
-						v-if="slotProps.data.picture_path"
-						:src="mainImgSrc(slotProps.data.picture_path)"
-						class="max-w-[250px] h-auto"
-					/>
-
-					<!-- picture upload: only for saved elements -->
-					<div>
-						<Button
-							@click="triggerFileInput"
-							:title="t('ProductCatDetail.pictureUpload.title')"
-						>
-							{{ t('ProductCatDetail.pictureUpload.caption') }}
-						</Button>
-
-						<input
-							type="file"
-							ref="fileInput"
-							@change="handleFileChange"
-							style="display: none"
-						/>
+			<tabs>
+				<tab :title="$t('ProductCatDetail.tabs.common')">
+					<!-- title -->
+					<div class="tab-content-title">
+						{{ $t('ProductCatDetail.tabs.common') }}
 					</div>
-				</div>
 
-				<div class="flex-1 space-y-2">
-					<Edit
-						id="name"
-						:label="$t('ProductCatDetail.name.label')"
-						:title="$t('ProductCatDetail.name.title')"
-						:placeholder="$t('ProductCatDetail.name.placeholder')"
-						:max-length="250"
-						v-model="slotProps.data.name"
-						:error="slotProps.errors['name']"
-					>
-					</Edit>
+					<div class="tab-content-container">
+						<!-- content -->
+						<div class="tab-content">
+							<ul class="cat-list">
+								<CatPublicListCard
+									v-for="cat in slotProps.data.parents"
+									:key="cat?.id"
+									:category="cat"
+								>
+								</CatPublicListCard>
+							</ul>
 
-					<EditText
-						id="description"
-						:label="$t('ProductCatDetail.description.label')"
-						:title="$t('ProductCatDetail.description.title')"
-						:placeholder="
-							$t('ProductCatDetail.description.placeholder')
-						"
-						:max-length="250"
-						v-model="slotProps.data.description"
-						:error="slotProps.errors['description']"
-					>
-					</EditText>
+							<div class="flex flex-col md:flex-row gap-4">
+								<div class="flex-shrink-0">
+									<!-- static image -->
+									<img
+										v-if="slotProps.data.picture_path"
+										:src="mainImgSrc(slotProps.data.picture_path)"
+										class="max-w-[250px] h-auto"
+									/>
 
-					<Edit
-						id="name_lat"
-						:label="$t('ProductCatDetail.name_lat.label')"
-						:title="$t('ProductCatDetail.name_lat.title')"
-						v-model="slotProps.data.name_lat"
-					>
-					</Edit>
+									<!-- picture upload: only for saved elements -->
+									<div>
+										<Button
+											@click="triggerFileInput"
+											:title="t('ProductCatDetail.pictureUpload.title')"
+										>
+											{{ t('ProductCatDetail.pictureUpload.caption') }}
+										</Button>
 
-					<EditInt
-						id="popularity"
-						:label="$t('ProductCatDetail.popularity.label')"
-						:title="$t('ProductCatDetail.popularity.title')"
-						v-model="slotProps.data.popularity"
-						:error="slotProps.errors['popularity']"
-					>
-					</EditInt>
+										<input
+											type="file"
+											ref="fileInput"
+											@change="handleFileChange"
+											style="display: none"
+										/>
+									</div>
+								</div>
 
-					<EditInt
-						id="order_position"
-						:label="$t('ProductCatDetail.order_position.label')"
-						:title="$t('ProductCatDetail.order_position.title')"
-						v-model="slotProps.data.order_position"
-						:error="slotProps.errors['order_position']"
-					>
-					</EditInt>
+								<div class="flex-1 space-y-2">
+									<Edit
+										id="name"
+										:label="$t('ProductCatDetail.name.label')"
+										:title="$t('ProductCatDetail.name.title')"
+										:placeholder="$t('ProductCatDetail.name.placeholder')"
+										:max-length="250"
+										v-model="slotProps.data.name"
+										:error="slotProps.errors['name']"
+									>
+									</Edit>
 
-					<ProductLinkList
-						v-if="slotProps.data.id"
-						:productCatId="slotProps.data.id"
-					>
-					</ProductLinkList>
-					<!-- certificate list 
-					<ProductCertificateUseRangeList
-						v-if="slotProps.data.id"
-						:productCatId="slotProps.data.id"
-					>
-					</ProductCertificateUseRangeList>
--->
-					<!-- product list 
-					<ProductCatProductList
-						v-if="slotProps.data.id"
-						:productCatId="slotProps.data.id"
-					>
-					</ProductCatProductList>
--->
+									<EditText
+										id="description"
+										:label="$t('ProductCatDetail.description.label')"
+										:title="$t('ProductCatDetail.description.title')"
+										:placeholder="
+											$t('ProductCatDetail.description.placeholder')
+										"
+										:max-length="250"
+										v-model="slotProps.data.description"
+										:error="slotProps.errors['description']"
+									>
+									</EditText>
 
-					<!-- filter list -->
-					<ProductCatFilterList v-model="slotProps.data.filter_attrs">
-					</ProductCatFilterList>
-				</div>
-			</div>
+									<Edit
+										id="name_lat"
+										:label="$t('ProductCatDetail.name_lat.label')"
+										:title="$t('ProductCatDetail.name_lat.title')"
+										v-model="slotProps.data.name_lat"
+									>
+									</Edit>
+
+									<EditInt
+										id="popularity"
+										:label="$t('ProductCatDetail.popularity.label')"
+										:title="$t('ProductCatDetail.popularity.title')"
+										v-model="slotProps.data.popularity"
+										:error="slotProps.errors['popularity']"
+									>
+									</EditInt>
+
+									<EditInt
+										id="order_position"
+										:label="$t('ProductCatDetail.order_position.label')"
+										:title="$t('ProductCatDetail.order_position.title')"
+										v-model="slotProps.data.order_position"
+										:error="slotProps.errors['order_position']"
+									>
+									</EditInt>
+
+									<!-- certificate list 
+									<ProductCertificateUseRangeList
+										v-if="slotProps.data.id"
+										:productCatId="slotProps.data.id"
+									>
+									</ProductCertificateUseRangeList>
+				-->
+									<!-- product list 
+									<ProductCatProductList
+										v-if="slotProps.data.id"
+										:productCatId="slotProps.data.id"
+									>
+									</ProductCatProductList>
+				-->
+
+								</div>
+							</div>
+
+
+						</div>
+					</div>
+				</tab>
+
+				<tab :title="$t('ProductCatDetail.tabs.products')">
+					<!-- title -->
+					<div class="tab-content-title">
+						{{ $t('ProductCatDetail.tabs.products') }}
+					</div>
+
+					<div class="tab-content-container">
+						<!-- content -->
+						<div class="tab-content">
+							<ProductLinkList
+								v-if="slotProps.data.id"
+								:productCatId="slotProps.data.id"
+							>
+							</ProductLinkList>
+						</div>
+					</div>
+				</tab>
+
+				<tab :title="$t('ProductCatDetail.tabs.filters')">
+					<!-- title -->
+					<div class="tab-content-title">
+						{{ $t('ProductCatDetail.tabs.filters') }}
+					</div>
+
+					<div class="tab-content-container">
+						<!-- content -->
+						<div class="tab-content">
+							<!-- filter list -->
+							<ProductCatFilterList v-model="slotProps.data.filter_attrs">
+							</ProductCatFilterList>
+
+						</div>
+					</div>
+				</tab>
+			</tabs>
+
+
+
 		</template>
 	</FormCustom>
 </template>
@@ -146,18 +195,23 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import FormCustom from '../lib/components/FormCustom.vue';
+import FormCustom from '@/lib/components/FormCustom.vue';
 import {
 	type FormCustomProps,
 	type FormCustomExposed,
-} from '../lib/types/formCustom';
+} from '@/lib/types/formCustom';
+import Tabs from '@/lib/components/Tabs.vue';
+import Tab from '@/lib/components/Tab.vue';
+
 import { newFormSrvOperations, type FormKeys } from '../lib/types/form';
 
-import Edit from '../lib/components/Edit.vue';
-import EditText from '../lib/components/EditText.vue';
-import EditInt from '../lib/components/EditInt.vue';
+import Edit from '@/lib/components/Edit.vue';
+import EditText from '@/lib/components/EditText.vue';
+import EditInt from '@/lib/components/EditInt.vue';
 import { type FormErrorList } from '../lib/utils/useValidation';
-import Button from '../lib/components/Button.vue';
+import Button from '@/lib/components/Button.vue';
+
+import DetailTitle from '@/components/DetailTitle.vue';
 
 import { useRouteParamsStore } from '@/lib/stores/useRouteParams';
 

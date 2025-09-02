@@ -1,30 +1,33 @@
 /* * Used from ProductDetail.vue to edit product_attr_vals field */
 <template>
 	<GridView
+		ref="gridViewRef"
 		grid-key="title"
 		:typeFormatter="typeFormatter"
 		:columns="columns"
 		:commands="
 			<GridCommand[]>[
 				{ id: 'search', btn: true, comp: GridCmdSearch },
-				{ id: 'add_row', btn: true, comp: GridCmdAddRow },
+				// { id: 'add_row', btn: true, comp: GridCmdAddRow },
 			]
 		"
+		:edit="{mode: GridEditMode.inline,}"
 		:store="gridStore"
 	>
 		<template v-slot:noData>
 			<GridNoData 
-				:cmd-add="false"
 				:caption="$t('ProductAttrVals.noDataTitle')" 
+				:cmd-add="false"
 			/>
 		</template>
 	</GridView>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useI18n } from 'vue-i18n';
 
-import GridView from '@/lib/components/GridView.vue';
+import GridView, { type GridViewExpose } from '@/lib/components/GridView.vue';
 
 import { type GridCommand } from '@/lib/types/grid';
 import { useCollectionLocal } from '@/lib/composables/useCollectionLocal';
@@ -36,18 +39,20 @@ import { ValidationConstraint } from '@/lib/types/validation';
 import { type ProductAttrVal } from '@/models/product';
 import { typeFormatter } from '@/utils/typeFormatter';
 import GridNoData from '@/components/GridNoData.vue';
-import GridCmdSearch from '@/components/GridCmdSearch.vue';
-import GridCmdAddRow from '@/components/GridCmdAddRow.vue';
+import { GridEditMode } from "@/lib/types/grid";
+import GridCmdSearch from './GridCmdSearch.vue';
 
 const { t } = useI18n();
 
 const data = defineModel<ProductAttrVal[] | undefined | null>();
 
+const gridViewRef = ref<GridViewExpose | null>(null);
+
 const columns = <GridCol[][]>[
 	[
 		{
 			id: 'title',
-			header: t('ProductCharDetail.title.label'),
+			header: t('ProductAttrVals.columns.title.label'),
 			field: {
 				dataType: DataType.text,
 				validRules: [{ constraint: ValidationConstraint.required }],
@@ -56,7 +61,7 @@ const columns = <GridCol[][]>[
 		},
 		{
 			id: 'value',
-			header: t('ProductCharDetail.value.label'),
+			header: t('ProductAttrVals.columns.value.label'),
 			field: {
 				dataType: DataType.text,
 				validRules: [{ constraint: ValidationConstraint.required }],
@@ -65,7 +70,7 @@ const columns = <GridCol[][]>[
 		},
 		{
 			id: 'prompt',
-			header: t('ProductCharDetail.prompt.label'),
+			header: t('ProductAttrVals.columns.prompt.label'),
 			field: {
 				dataType: DataType.text,
 			},
@@ -73,7 +78,7 @@ const columns = <GridCol[][]>[
 		},
 		{
 			id: 'visible',
-			header: t('ProductCharDetail.visible.label'),
+			header: t('ProductAttrVals.columns.visible.label'),
 			field: {
 				dataType: DataType.bool,
 			},
@@ -81,7 +86,7 @@ const columns = <GridCol[][]>[
 		},
 		{
 			id: 'comment_text',
-			header: t('ProductCharDetail.comment_text.label'),
+			header: t('ProductAttrVals.columns.comment_text.label'),
 			field: {
 				dataType: DataType.text,
 			},
@@ -89,12 +94,6 @@ const columns = <GridCol[][]>[
 		},
 	],
 ];
-
-// const commands: GridCommand[] = [
-// 	{ id: 'add_row', btn: true, comp: GridCmdAddRow },
-// 	{ id: 'edit_row', btn: true, comp: GridCmdEditRow },
-// 	{ id: 'delete_row', btn: true, comp: GridCmdDeleteRow },
-// ];
 
 const initSort = { col: 'title', order: GridColSortOrder.asc };
 
@@ -111,4 +110,5 @@ const initSort = { col: 'title', order: GridColSortOrder.asc };
 //-----store init -----
 const gridStore = useCollectionLocal(data);
 gridStore.setCurrentSort(initSort);
+
 </script>

@@ -1,22 +1,26 @@
 <template>
-	<div class="flex w-[1128px] justify-between items-center rounded-[0_0_var(--radius-xl,12px)_var(--radius-xl,12px)] [background:var(--Gray-100,#F5F5F5)] px-6 py-4">
+	<!--
+	class="flex w-[1128px] justify-between items-center rounded-[0_0_var(--radius-xl,12px)_var(--radius-xl,12px)] [background:var(--Gray-100,#F5F5F5)] px-6 py-4">
+-->
+	<div class="tabs">
 		<button
 			type="button"
 			v-for="(tab, index) in tabs"
 			:key="index"
-			class="flex justify-center items-center gap-1 px-3 py-2 rounded-lg cursor-pointer"
+			class="flex justify-center items-center gap-1 px-3 py-2 rounded-lg cursor-pointer
+				hover:text-[color:var(--brand-700)] hover:bg-[color:(--base-white)]"
 			:class="[
 				activeTab === index
-					? '[background:#FFF]'
+					? '[background:#FFF] text-[color:var(--brand-700)]'
 					: '',
 			]"
 			@click="activeTab = index"
 		>
 			<span 
-				class=" [font-family:Inter] text-sm font-semibold leading-5"
+				class=" [font-family:var(--font-inter)] text-sm font-semibold leading-5"
 				:class="[
 					activeTab === index
-						? 'text-[color:var(--Brand-700,#097350)]'
+						? 'text-[color:var(--Brand-700)]'
 						: '',
 				]"
 			>

@@ -1,5 +1,5 @@
 <template>
-  <aside class="flex w-[264px] h-[828px] flex-col items-center gap-6 shrink-0 border-r-[color:var(--gray-200)] [background:var(--gray-50)] px-0 py-6 border-r border-solid">
+  <aside class="flex w-[264px] h-screen sticky top-0 flex-col items-center gap-6 shrink-0 border-r-[color:var(--gray-200)] [background:var(--gray-50)] px-0 py-6 border-r border-solid">
 
 	<Logo class="w-[136.25px] h-10 shrink-0 cursor-pointer" @click="router.push('/')"/>
 

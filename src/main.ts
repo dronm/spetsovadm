@@ -92,11 +92,15 @@ app.config.errorHandler = (err, instance, info) => {
 };
 
 // "first": new URL(`assets/pag/first.png`, import.meta.url).href,
-app.provide('paginationComponents', {
+app.provide('paginationIcons', {
 	"first": "ChevronLeftDouble",
 	"prev": "ChevronLeft",
 	"last": "ChevronRightDouble",
 	"next": "ChevronRight"
+});
+
+app.provide('btnIcons', {
+	"clear": "XCircle",
 });
 
 app.mount('#app');

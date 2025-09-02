@@ -1,5 +1,9 @@
 <template>
-	<div class="detail-title">{{ t('ProductCatFilterDetail.title') }}</div>
+	<DetailTitle
+		:back-title="t('ProductCatFilterDetail.goBack')"
+		:title="t('ProductCatFilterDetail.title')"
+		back-route="productCatFilterList"
+	/>
 
 	<FormCustom
 		ref="formRef"
@@ -61,6 +65,7 @@ import {
 } from '@/services/productCatFilter';
 import { productCatFilterFields } from '@/dataFields/productCatFilter';
 import ProductCatFilterValues from '@/components/ProductCatFilterValues.vue';
+import DetailTitle from '@/components/DetailTitle.vue';
 
 //
 interface SlotProps {

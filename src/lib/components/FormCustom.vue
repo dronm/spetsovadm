@@ -1,5 +1,5 @@
 <template>
-	<form>
+	<form class="submit-form">
 		<!-- custom form template with controls -->
 		<slot name="controls" :data="editData" :errors="fieldErrors" />
 

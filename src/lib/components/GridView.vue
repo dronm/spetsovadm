@@ -22,6 +22,8 @@
 		:show-pages="showPages"
 		:format-row-class="formatRowClass"
 		:expand="expand"
+		:expandRowComponent="expandRowComponent"
+		:expanded-class="expandedClass"
 		:error="error"
 		@select="onSelect"
 		@custom="customEventHandler"
@@ -80,6 +82,8 @@ const {
 	showPages = 3,
 	formatRowClass,
 	expand,
+	expandRowComponent,
+	expandedClass,
 	error,
 	defSrvEvents = true,
 	srvEvents,

@@ -11,7 +11,8 @@
 				<div class="self-stretch text-[color:var(--gray-900)] text-center [font-family:var(--font-inter)] text-base font-semibold leading-6">
 					{{ caption }}
 				</div>
-				<ButtonAdd @click="emit('addRow')" color="var(--base-white)" bg="var(--brand-950)"/>
+
+				<ButtonAdd v-if="cmdAdd" @click="emit('addRow')" color="var(--base-white)" bg="var(--brand-950)" />
 			</div>
 		</div>
 	</div>

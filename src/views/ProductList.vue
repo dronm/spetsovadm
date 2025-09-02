@@ -146,6 +146,7 @@ const customCmdHandler = (cmd: GridCmdSearch) => {
 		const search = cmd.val
 			.split(' ')
 			.filter((v: string) => v.trim().length)
+			.map((v: string) => `${v}:*`)
 			.join(' & ');
 		if (search.length) {
 			gridStore.setFetchParams(<CollectionParams>{

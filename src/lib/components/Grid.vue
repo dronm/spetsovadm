@@ -322,8 +322,30 @@
 
 									<!-- simple row value output --->
 									<template v-else>
-										<GridCmdExpandRow
+										<Component
 											v-if="
+												expandRowComponent &&
+												col.expand ===
+												true
+											"
+											:is="expandRowComponent.comp"
+											:expanded="
+												expandedRows.has(
+													rowIndex,
+												)
+											"
+											@update:expanded="
+												(
+													val: boolean,
+												) =>
+													handleRowExpanded(
+														rowIndex,
+														val,
+													)
+											"
+										/>
+										<GridCmdExpandRow
+											v-else-if="
 												col.expand ===
 												true
 											"
@@ -361,6 +383,7 @@
 											:colspan="
 												visibleCols.length
 											"
+											:class="expandedClass"
 										>
 											<Component
 												:is="
@@ -709,6 +732,8 @@ const {
 	error,
 	formatRowClass,
 	expand,
+	expandRowComponent,
+	expandedClass,
 	data,
 } = defineProps<GridProps>();
 
